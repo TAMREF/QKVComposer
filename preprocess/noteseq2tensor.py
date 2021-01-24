@@ -18,6 +18,14 @@ ONEHOT_INDEX_OFFSET = {
     "TIME_SHIFT" : 384
 }
 
+EVENT_TYPE_TO_LENGTH = {
+    "SET_VELOCITY" : 128,
+    "NOTE_ON" : 128,
+    "NOTE_OFF" : 128,
+    "TIME_SHIFT" : 100
+}
+NUM_FEATURES = 484
+
 class NoteEvent(object):
     """
     eventType : 'SET_VELOCITY' | 'NOTE_OFF' | 'NOTE_ON' | 'TIME_SHIFT'
@@ -53,6 +61,12 @@ class NoteEvent(object):
         else:
             assert False
         return index
+    
+    def validIndexRange(self, index: int):
+        offset = ONEHOT_INDEX_OFFSET[self.eventType]
+        if index < offset or index >= offset + EVENT_TYPE_TO_LENGTH[self.eventType]:
+            return False
+        return True
 
 # NoteSeq object is a representation of a single note.
 class NoteSeq(object):
@@ -122,7 +136,9 @@ def makeEventTimeline(notes: List[NoteSeq]):
 def generateIndices(events: List[NoteEvent]):
     indices = []
     for event in events:
-        indices.append(event.getIndex())
+        index = event.getIndex()
+        assert event.validIndexRange(index)
+        indices.append(index)
     return indices
 
 # the main access point of this file. converts a raw JSON file into the indices.
