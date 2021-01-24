@@ -106,7 +106,7 @@ for e in range(config.epochs):
         # result_metrics = metric_set(sample, batch_y)
         if b % 100 == 0:
             single_mt.eval()
-            eval_x, eval_y = dataset.slide_seq2seq_batch(2, config.max_seq, 'eval')
+            eval_x, eval_y = dataset.slide_seq2seq_batch(1, config.max_seq, 'eval')
             eval_x = torch.from_numpy(eval_x).contiguous().to(config.device, dtype=torch.int)
             eval_y = torch.from_numpy(eval_y).contiguous().to(config.device, dtype=torch.int)
 

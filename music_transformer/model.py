@@ -65,7 +65,7 @@ class MusicTransformer(torch.nn.Module):
             result = pdf.sample().argmax(-1).unsqueeze(-1)
             decode_array = torch.cat((decode_array, result), dim=-1)
             result_array = torch.cat((result_array, result), dim=-1)
-        return result_array
+        return result_array[0]
 
     def test(self):
         self.eval()

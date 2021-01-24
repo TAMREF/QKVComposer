@@ -1,4 +1,11 @@
-save_path: 'bin/generated.mid'
-condition_file:
-length: 4000
+save_path: './genset/first_music.mid'
+condition_file: './dataset/Abdelmola01.MID'
+length: 1000
 threshold_len: 500
+
+
+max_seq: 128
+embedding_dim: 512
+num_layers: 6
+event_dim: 388
+experiment: 'initial'

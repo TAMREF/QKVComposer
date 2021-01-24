@@ -130,3 +130,18 @@ dmypy.json
 
 data/*
 outputs/*
+
+#pytorch pth files
+*.pth
+
+#midi files
+*.mid
+
+#zip files
+*.zip
+
+#pickle file
+*.pickle
+
+#log files
+music_transformer/logs/*
