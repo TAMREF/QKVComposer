@@ -49,7 +49,7 @@ class NoteEvent(object):
         elif self.eventType == 'NOTE_ON' or self.eventType == 'NOTE_OFF':
             index += self.pitch
         elif self.eventType == 'TIME_SHIFT':
-            index += self.duration
+            index += (self.duration - 1) # duration is 1 - 100 unit, thus convert to 0-based index
         else:
             assert False
         return index
@@ -62,8 +62,10 @@ class NoteSeq(object):
         self.startTime = startTime
         self.endTime = endTime
 
-        if pitch < 1 or pitch > 128:
+        if pitch < 0 or pitch > 127:
             raise Exception('pitch is out of range')
+        if velocity < 0 or velocity > 127:
+            raise Exception('velocity is out of range')
         
         if startTime > endTime:
             raise Exception('startTime goes after endTime')
