@@ -1,0 +1,13 @@
+pickle_dir: '../MusicTransformer/dataset/processed'
+epochs: 1000
+batch_size: 8
+load_path:
+dropout: 0.1
+debug: 'true'
+l_r: 0.001
+label_smooth: 0.1
+
+max_seq: 2048
+embedding_dim: 256
+num_layers: 6
+event_dim: 388
