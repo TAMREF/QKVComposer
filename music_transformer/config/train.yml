@@ -1,14 +1,13 @@
-pickle_dir: './processed'
-epochs: 1000
-batch_size: 4
-load_path:
+pickle_dir: './dataset/pickle'
+epochs: 3000
+batch_size: 32
+load_path: './results/final.pth'
 dropout: 0.1
-debug: 'true'
-l_r: 0.001
+debug: 'false'
 label_smooth: 0.1
 
-max_seq: 128
+max_seq: 512
 embedding_dim: 512
 num_layers: 6
 event_dim: 388
-experiment: 'initial'
+experiment: 'small_data'

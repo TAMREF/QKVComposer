@@ -30,6 +30,10 @@ else:
 dataset = Data(config.pickle_dir)
 print(dataset)
 
+
+# load model
+learning_rate = config.l_r
+
 # define model
 mt = MusicTransformer(
             embedding_dim=config.embedding_dim,
@@ -37,11 +41,10 @@ mt = MusicTransformer(
             num_layer=config.num_layers,
             max_seq=config.max_seq,
             dropout=config.dropout,
-            debug=config.debug
+            debug=config.debug, loader_path=config.load_path
 )
-mt.load_state_dict(torch.load(config.load_path))
 mt.to(config.device)
-opt = optim.AdamW(mt.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)
+opt = optim.Adam(mt.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)
 scheduler = CustomSchedule(config.embedding_dim, optimizer=opt)
 
 # multi-GPU set
@@ -73,7 +76,7 @@ eval_summary_writer = SummaryWriter(eval_log_dir)
 print(">> Train start...")
 idx = 0
 for e in range(config.epochs):
-    print(">>> [Epoch{} was updated]".format(e))
+    print(">>> [Epoch was updated]")
     for b in range(len(dataset.files) // config.batch_size):
         scheduler.optimizer.zero_grad()
         try:
@@ -92,7 +95,7 @@ for e in range(config.epochs):
         scheduler.step()
         end_time = time.time()
 
-        if config.debug == 'true':
+        if config.debug:
             print("[Loss]: {}".format(loss))
 
         train_summary_writer.add_scalar('loss', metrics['loss'], global_step=idx)
@@ -100,6 +103,33 @@ for e in range(config.epochs):
         train_summary_writer.add_scalar('learning_rate', scheduler.rate(), global_step=idx)
         train_summary_writer.add_scalar('iter_p_sec', end_time-start_time, global_step=idx)
 
+        # result_metrics = metric_set(sample, batch_y)
+        if b % 100 == 0:
+            single_mt.eval()
+            eval_x, eval_y = dataset.slide_seq2seq_batch(1, config.max_seq, 'eval')
+            eval_x = torch.from_numpy(eval_x).contiguous().to(config.device, dtype=torch.int)
+            eval_y = torch.from_numpy(eval_y).contiguous().to(config.device, dtype=torch.int)
+
+            eval_preiction, weights = single_mt.forward(eval_x)
+
+            eval_metrics = metric_set(eval_preiction, eval_y)
+            torch.save(single_mt.state_dict(), args.model_dir+'/train-{}.pth'.format(e))
+            if b == 0:
+                train_summary_writer.add_histogram("target_analysis", batch_y, global_step=e)
+                train_summary_writer.add_histogram("source_analysis", batch_x, global_step=e)
+                for i, weight in enumerate(weights):
+                    attn_log_name = "attn/layer-{}".format(i)
+                    utils.attention_image_summary(
+                        attn_log_name, weight, step=idx, writer=eval_summary_writer)
+
+            eval_summary_writer.add_scalar('loss', eval_metrics['loss'], global_step=idx)
+            eval_summary_writer.add_scalar('accuracy', eval_metrics['accuracy'], global_step=idx)
+            eval_summary_writer.add_histogram("logits_bucket", eval_metrics['bucket'], global_step=idx)
+
+            print('\n====================================================')
+            print('Epoch/Batch: {}/{}'.format(e, b))
+            print('Train >>>> Loss: {:6.6}, Accuracy: {}'.format(metrics['loss'], metrics['accuracy']))
+            print('Eval >>>> Loss: {:6.6}, Accuracy: {}'.format(eval_metrics['loss'], eval_metrics['accuracy']))
         torch.cuda.empty_cache()
         idx += 1
 
@@ -108,35 +138,8 @@ for e in range(config.epochs):
         if torch.cuda.device_count() > 1:
             mt.output_device = idx % (torch.cuda.device_count() -1) + 1
         sw_end = time.time()
-        if config.debug == 'true':
+        if config.debug:
             print('output switch time: {}'.format(sw_end - sw_start) )
-    # result_metrics = metric_set(sample, batch_y)
-    if e % 100 == 0:
-        single_mt.eval()
-        eval_x, eval_y = dataset.slide_seq2seq_batch(1, config.max_seq, 'eval')
-        eval_x = torch.from_numpy(eval_x).contiguous().to(config.device, dtype=torch.int)
-        eval_y = torch.from_numpy(eval_y).contiguous().to(config.device, dtype=torch.int)
-
-        eval_preiction, weights = single_mt.forward(eval_x)
-
-        eval_metrics = metric_set(eval_preiction, eval_y)
-        torch.save(single_mt.state_dict(), args.model_dir+'/train-{}.pth'.format(e))
-        if b == 0:
-            train_summary_writer.add_histogram("target_analysis", batch_y, global_step=e)
-            train_summary_writer.add_histogram("source_analysis", batch_x, global_step=e)
-            for i, weight in enumerate(weights):
-                attn_log_name = "attn/layer-{}".format(i)
-                utils.attention_image_summary(
-                    attn_log_name, weight, step=idx, writer=eval_summary_writer)
-
-        eval_summary_writer.add_scalar('loss', eval_metrics['loss'], global_step=idx)
-        eval_summary_writer.add_scalar('accuracy', eval_metrics['accuracy'], global_step=idx)
-        eval_summary_writer.add_histogram("logits_bucket", eval_metrics['bucket'], global_step=idx)
-
-        print('\n====================================================')
-        print('Epoch/Batch: {}/{}'.format(e, b))
-        print('Train >>>> Loss: {:6.6}, Accuracy: {}'.format(metrics['loss'], metrics['accuracy']))
-        print('Eval >>>> Loss: {:6.6}, Accuracy: {}'.format(eval_metrics['loss'], eval_metrics['accuracy']))
 
 torch.save(single_mt.state_dict(), args.model_dir+'/final.pth'.format(idx))
 eval_summary_writer.close()

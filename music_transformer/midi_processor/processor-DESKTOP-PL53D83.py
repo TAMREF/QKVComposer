@@ -259,3 +259,4 @@ if __name__ == '__main__':
     for i in ins.instruments:
         print(i.control_changes)
         print(i.notes)
+

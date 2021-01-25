@@ -40,7 +40,7 @@ mt.test()
 
 print(config.condition_file)
 if config.condition_file is not None:
-    inputs = np.array([encode_midi(config.condition_file)[:config.max_seq]])
+    inputs = np.array([encode_midi(config.condition_file)[:200]])
 else:
     inputs = np.array([[24, 28, 31]])
 inputs = torch.from_numpy(inputs)

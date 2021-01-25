@@ -1,10 +1,10 @@
 save_path: './genset/first_music.mid'
-condition_file: './dataset/Abdelmola01.MID'
+condition_file: 
 length: 1000
-threshold_len: 500
+threshold_len: 512
 
 
-max_seq: 128
+max_seq: 512
 embedding_dim: 512
 num_layers: 6
 event_dim: 388
