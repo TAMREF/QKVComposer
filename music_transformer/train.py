@@ -111,17 +111,6 @@ for e in range(config.epochs):
         sw_end = time.time()
         if config.debug == 'true':
             print('output switch time: {}'.format(sw_end - sw_start) )
-    # result_metrics = metric_set(sample, batch_y)
-    if e % 100 == 0:
-        single_mt.eval()
-        eval_x, eval_y = dataset.slide_seq2seq_batch(1, config.max_seq, 'eval')
-        eval_x = torch.from_numpy(eval_x).contiguous().to(config.device, dtype=torch.int)
-        eval_y = torch.from_numpy(eval_y).contiguous().to(config.device, dtype=torch.int)
-
-        eval_preiction, weights = single_mt.forward(eval_x)
-
-        eval_metrics = metric_set(eval_preiction, eval_y)
-        torch.save(single_mt.state_dict(), args.model_dir+'/train-{}.pth'.format(e))
         if b == 0:
             train_summary_writer.add_histogram("target_analysis", batch_y, global_step=e)
             train_summary_writer.add_histogram("source_analysis", batch_x, global_step=e)
@@ -138,6 +127,17 @@ for e in range(config.epochs):
         print('Epoch/Batch: {}/{}'.format(e, b))
         print('Train >>>> Loss: {:6.6}, Accuracy: {}'.format(metrics['loss'], metrics['accuracy']))
         print('Eval >>>> Loss: {:6.6}, Accuracy: {}'.format(eval_metrics['loss'], eval_metrics['accuracy']))
+    # result_metrics = metric_set(sample, batch_y)
+    if e % 100 == 0:
+        single_mt.eval()
+        eval_x, eval_y = dataset.slide_seq2seq_batch(1, config.max_seq, 'eval')
+        eval_x = torch.from_numpy(eval_x).contiguous().to(config.device, dtype=torch.int)
+        eval_y = torch.from_numpy(eval_y).contiguous().to(config.device, dtype=torch.int)
+
+        eval_preiction, weights = single_mt.forward(eval_x)
+
+        eval_metrics = metric_set(eval_preiction, eval_y)
+        torch.save(single_mt.state_dict(), args.model_dir+'/train-{}.pth'.format(e))
 
 torch.save(single_mt.state_dict(), args.model_dir+'/final.pth'.format(idx))
 eval_summary_writer.close()
