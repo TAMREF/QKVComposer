@@ -2,13 +2,13 @@ import utils
 import random
 import pickle
 import numpy as np
-
+import torch
 from custom.config import config
 
 
 class Data:
     def __init__(self, dir_path):
-        self.files = list(utils.find_files_by_extensions(dir_path, ['.pickle']))
+        self.files = list(utils.find_files_by_extensions(dir_path, ['.pt']))
         self.file_dict = {
             'train': self.files[:int(len(self.files) * 0.8)],
             'eval': self.files[int(len(self.files) * 0.8): int(len(self.files) * 0.9)],
@@ -25,11 +25,11 @@ class Data:
 
         batch_files = random.sample(self.file_dict[mode], k=batch_size)
 
-        batch_data = [
-            self._get_seq(file, length)
+        batch_data = torch.cat([
+            self._get_seq(file, length).unsqueeze(0)
             for file in batch_files
-        ]
-        return np.array(batch_data)  # batch_size, seq_len
+        ])
+        return batch_data  # batch_size, seq_len
 
     def seq2seq_batch(self, batch_size, length, mode='train'):
         data = self.batch(batch_size, length * 2, mode)
@@ -47,6 +47,8 @@ class Data:
         data = self.batch(batch_size, length+1, mode)
         x = data[:, :-1]
         y = data[:, 1:]
+        x.require_grad = False
+        y.require_grad = False
         return x, y
 
     def random_sequential_batch(self, batch_size, length):
@@ -78,7 +80,7 @@ class Data:
 
     def _get_seq(self, fname, max_length=None):
         with open(fname, 'rb') as f:
-            data = pickle.load(f)
+            data = torch.load(f)
         if max_length is not None:
             if max_length <= len(data):
                 start = random.randrange(0,len(data) - max_length)

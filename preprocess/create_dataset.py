@@ -1,11 +1,14 @@
 import torch
 from preprocess_utils import *
 from tqdm import tqdm
-if __name__ == '__main__':
 
+#Maximum number of events
+MAX_EVENT = 6400
+
+if __name__ == '__main__':
     midiFiles = glob("data/*.midi")
 
-    fullData = torch.zeros(len(midiFiles), 6400)
+    fullData = torch.zeros(len(midiFiles), MAX_EVENT)
     pbar = tqdm(enumerate(midiFiles))
 
     for idx, fpath in pbar:

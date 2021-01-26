@@ -133,6 +133,7 @@ outputs/*
 
 #pytorch pth files
 *.pth
+*.pt
 
 #midi files
 *.mid
@@ -144,4 +145,4 @@ outputs/*
 *.pickle
 
 #log files
-music_transformer/logs/*
+music_transformer/logs

@@ -10,6 +10,11 @@ from midi_processor.processor import decode_midi, encode_midi
 import datetime
 import argparse
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'preprocess'))
+import torch
+
 from tensorboardX import SummaryWriter
 
 
@@ -28,6 +33,7 @@ current_time = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 gen_log_dir = 'logs/mt_decoder/generate_'+current_time+'/generate'
 gen_summary_writer = SummaryWriter(gen_log_dir)
 
+#define model from args.model_dir
 mt = MusicTransformer(
     embedding_dim=config.embedding_dim,
     vocab_size=config.vocab_size,
@@ -38,17 +44,23 @@ mt = MusicTransformer(
 mt.load_state_dict(torch.load(args.model_dir+'/final.pth'))
 mt.test()
 
-print(config.condition_file)
+#from config file, make input tensor
 if config.condition_file is not None:
-    inputs = np.array([encode_midi(config.condition_file)[:200]])
+    #from condition file
+    condition_midi = torch.load(config.condition_file)
+    inputs = np.array([condition_midi[:config.condition_length]])
 else:
+    #start with one chord
     inputs = np.array([[24, 28, 31]])
+
+#generate event tensor using model
 inputs = torch.from_numpy(inputs)
 result = mt(inputs, config.length, gen_summary_writer)
 
-for i in result:
-    print(i)
+#save midi file using tensor2list, list2midi
+from preprocess_utils import *
 
-decode_midi(result, file_path=config.save_path)
+LIST_rec = tensor2list(result)
+list2midi(LIST_rec, ofpath = os.path.join(config.save_path, "test_rec.midi"))
 
 gen_summary_writer.close()

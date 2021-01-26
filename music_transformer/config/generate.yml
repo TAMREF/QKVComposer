@@ -1,11 +1,12 @@
-save_path: './genset/first_music.mid'
+save_path: './genset'
 condition_file: 
-length: 1000
+length: 100
 threshold_len: 512
 
 
 max_seq: 512
 embedding_dim: 512
 num_layers: 6
-event_dim: 388
+event_dim: 484
 experiment: 'initial'
+condition_length: 200

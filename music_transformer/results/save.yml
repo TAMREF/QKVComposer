@@ -4,7 +4,7 @@ debug: 'true'
 dropout: 0.1
 embedding_dim: 256
 epochs: 1000
-event_dim: 388
+event_dim: 425
 l_r: 0.001
 label_smooth: 0.1
 load_path: null
