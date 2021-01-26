@@ -137,6 +137,8 @@ outputs/*
 
 #midi files
 *.mid
+*.midi
+*.MID
 
 #zip files
 *.zip

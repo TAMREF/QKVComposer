@@ -39,7 +39,7 @@ mt = MusicTransformer(
             dropout=config.dropout,
             debug=config.debug
 )
-if config.load_path == '':
+if config.load_path != '':
     mt.load_state_dict(torch.load(config.load_path))
 mt.to(config.device)
 opt = optim.AdamW(mt.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)

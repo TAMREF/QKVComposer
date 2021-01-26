@@ -1,7 +1,7 @@
 pickle_dir: './dataset/event_tensor'
-epochs: 3
-batch_size: 2
-load_path: 
+epochs: 5000
+batch_size: 32
+load_path: 'results/train-200.pth'
 dropout: 0.1
 debug: 'false'
 label_smooth: 0.1

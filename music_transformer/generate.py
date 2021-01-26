@@ -4,7 +4,6 @@ from custom.layers import *
 from custom.config import config
 from model import MusicTransformer
 from data import Data
-import utils
 from midi_processor.processor import decode_midi, encode_midi
 
 import datetime
@@ -12,7 +11,6 @@ import argparse
 
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'preprocess'))
 import torch
 
 from tensorboardX import SummaryWriter
@@ -48,7 +46,7 @@ mt.test()
 if config.condition_file is not None:
     #from condition file
     condition_midi = torch.load(config.condition_file)
-    inputs = np.array([condition_midi[:config.condition_length]])
+    inputs = condition_midi[:config.condition_length].unsqueeze(0).numpy()
 else:
     #start with one chord
     inputs = np.array([[24, 28, 31]])
@@ -58,6 +56,7 @@ inputs = torch.from_numpy(inputs)
 result = mt(inputs, config.length, gen_summary_writer)
 
 #save midi file using tensor2list, list2midi
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'preprocess'))
 from preprocess_utils import *
 
 LIST_rec = tensor2list(result)

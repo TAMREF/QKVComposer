@@ -1,6 +1,6 @@
 save_path: './genset'
-condition_file: 
-length: 100
+condition_file: #'./dataset_test/event_tensor/chpn_op23.pt'
+length: 1000
 threshold_len: 512
 
 
@@ -9,4 +9,4 @@ embedding_dim: 512
 num_layers: 6
 event_dim: 484
 experiment: 'initial'
-condition_length: 200
+condition_length: 400
