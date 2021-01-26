@@ -148,3 +148,6 @@ outputs/*
 
 #log files
 music_transformer/logs
+
+#VSCode
+.vscode/
