@@ -71,23 +71,25 @@ class RelativeGlobalAttention(torch.nn.Module):
         q = inputs[0]
         q = self.Wq(q)
         q = torch.reshape(q, (q.size(0), q.size(1), self.h, -1))
-        q = q.permute(0, 2, 1, 3)  # batch, h, seq, dh
+        q = q.permute(0, 2, 1, 3).contiguous()  # batch, h, seq, dh
 
         k = inputs[1]
         k = self.Wk(k)
         k = torch.reshape(k, (k.size(0), k.size(1), self.h, -1))
-        k = k.permute(0, 2, 1, 3)
+        k = k.permute(0, 2, 1, 3).contiguous()
 
         v = inputs[2]
         v = self.Wv(v)
         v = torch.reshape(v, (v.size(0), v.size(1), self.h, -1))
-        v = v.permute(0, 2, 1, 3)
+        v = v.permute(0, 2, 1, 3).contiguous()
+
+
 
         self.len_k = k.size(2)
         self.len_q = q.size(2)
 
         E = self._get_left_embedding(self.len_q, self.len_k).to(q.device)
-        QE = torch.einsum('bhld,md->bhlm', [q, E])
+        QE = torch.matmul(q, E.t())
         QE = self._qe_masking(QE)
         Srel = self._skewing(QE)
 
