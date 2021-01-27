@@ -1,0 +1,13 @@
+CONFIG_FILE_NAME: save.yml
+batch_size: 8
+debug: 'true'
+dropout: 0.1
+embedding_dim: 256
+epochs: 1000
+event_dim: 425
+l_r: 0.001
+label_smooth: 0.1
+load_path: null
+max_seq: 2048
+num_layers: 6
+pickle_dir: ../MusicTransformer/dataset/processed
