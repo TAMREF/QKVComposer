@@ -1,0 +1,27 @@
+defaults:
+  - dataset: full
+  - optimizer: adam
+
+model:
+  size: 10
+
+train:
+  gpus: 2
+  batch_size: 64
+  valid_split: 1024
+  log_dir: 'logs'
+  checkpoint_dir: 'checkpoints'
+  version: 0
+  fast_dev_run: False
+  accumulate: 1
+  steps: 100
+  epochs: 1500
+  parallel_calls: 32
+  sample: False
+  trace: False
+
+inference:
+  yid: ''
+  path: ''
+  save_path: 'samples'
+  length: 1
