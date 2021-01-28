@@ -4,10 +4,10 @@ from preprocess_utils import *
 from tqdm import tqdm
 import os
 
-midi_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "music_transformer", "dataset", "midi", "maestro-v3.0.0")
-save_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "music_transformer", "dataset", "event_tensor")
+midi_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataset", "midi", "maestro-v3.0.0")
+save_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataset", "event_tensor")
 
-midiFiles = glob(os.path.join(midi_dir, ['.mid','midi']))
+midiFiles = glob(os.path.join(midi_dir, '*.midi'))
 pbar = tqdm(enumerate(midiFiles))
 for idx, fpath in pbar:
     dataTensor = list2tensor(midi2list(ifpath = fpath))
