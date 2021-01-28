@@ -2,26 +2,40 @@ from omegaconf.dictconfig import DictConfig
 import torch
 import pytorch_lightning as pl
 
-from torch import nn
+from torch import optim
+
+from model.loss import GenericLoss, get_accuracy
+from model.core import CoreModel
 
 class BaseModel(pl.LightningModule):
     def __init__(self, cfg: DictConfig):
         super(BaseModel, self).__init__()
         self.cfg = cfg
+        self.loss = GenericLoss(cfg)
+        self.model = CoreModel(cfg)
 
     def forward(self, x: torch.Tensor):
-        pass
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
+        x, target = batch
+        logits = self.model(x)
+        loss = self.loss(logits, target)
         tensorboard_log = {
-            'train_loss': 0
+            'train_loss': loss
         }
-        return {'loss': 0, 'log': tensorboard_log}
+
+        return {'loss': loss, 'log': tensorboard_log}
 
     def validation_step(self, batch, batch_idx):
+        x, target = batch
+        logits = self.model(x)
+        loss = self.loss(logits, target)
+        acc = get_accuracy(logits, target)
+
         return {
-            'val_loss': 0,
-            'val_acc': 0
+            'val_loss': loss,
+            'val_acc': acc
         }
     
     def validation_epoch_end(self, outputs):
@@ -35,9 +49,14 @@ class BaseModel(pl.LightningModule):
         return {'val_loss': loss, 'log': tensorboard_log}
     
     def test_step(self, batch, batch_idx):
+        x, target = batch
+        logits = self.model(x)
+        loss = self.loss(logits, target)
+        acc = get_accuracy(logits, target)
+
         return {
-            'test_loss': 0,
-            'test_acc': 0
+            'test_loss': loss,
+            'test_acc': acc
         }
 
     def test_epoch_end(self, outputs):
@@ -52,7 +71,7 @@ class BaseModel(pl.LightningModule):
 
     def configure_optimizers(self):
         if self.cfg.train.optim == 'adam':
-            return torch.optim.Adam(
+            return optim.Adam(
                 self.parameters(),
                 lr=self.cfg.train.lr,
                 betas=self.cfg.train.betas,
