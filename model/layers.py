@@ -33,10 +33,12 @@ class DynamicPositionEmbedding(torch.nn.Module):
             ]
             for pos in range(max_seq)
         ]])
-        self.positional_embedding = embed_sinusoid_list
+        self.positional_embedding = torch.from_numpy(embed_sinusoid_list)
 
     def forward(self, x):
-        x = x + torch.from_numpy(self.positional_embedding[:, :x.size(1), :]).to(x.device, dtype=x.dtype)
+        if self.positional_embedding.device != x.device or self.positional_embedding.dtype != x.dtype:
+            self.positional_embedding = self.positional_embedding.to(x.device, dtype=x.dtype)
+        x = x + self.positional_embedding[:, :x.size(1), :].to(x.device, dtype=x.dtype)
         return x
 
 
