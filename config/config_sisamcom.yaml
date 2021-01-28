@@ -16,7 +16,7 @@ train:
   checkpoint_dir: 'checkpoints'
   epochs: 1500
   fast_dev_run: False
-  gpus: 1
+  gpus: 4
   lr: 0.0003
   log_dir: 'logs'
   name: 'test'
