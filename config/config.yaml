@@ -11,7 +11,7 @@ dataset:
 train:
   optim: 'adam'
   accumulate: 1
-  batch_size: 8
+  batch_size: 1
   betas: [0.5, 0.9]
   checkpoint_dir: 'checkpoints'
   epochs: 1500
@@ -28,6 +28,8 @@ train:
   valid_split: 1024
   version: 0
   random_seed: 42
+  label_smooth: 0.1
+  reduction: 'mean'
 
 inference:
   length: 1

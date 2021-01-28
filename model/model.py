@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 
 from torch import optim
 
-from model.loss import GenericLoss, get_accuracy
+from model.loss import GenericLoss, CategoricalAccuracy
 from model.core import CoreModel
 
 class BaseModel(pl.LightningModule):
@@ -12,6 +12,7 @@ class BaseModel(pl.LightningModule):
         super(BaseModel, self).__init__()
         self.cfg = cfg
         self.loss = GenericLoss(cfg)
+        self.accuracy = CategoricalAccuracy()
         self.model = CoreModel(cfg)
 
     def forward(self, x: torch.Tensor):
@@ -31,7 +32,7 @@ class BaseModel(pl.LightningModule):
         x, target = batch
         logits = self.model(x)
         loss = self.loss(logits, target)
-        acc = get_accuracy(logits, target)
+        acc = self.accuracy(logits, target)
 
         return {
             'val_loss': loss,
@@ -39,8 +40,8 @@ class BaseModel(pl.LightningModule):
         }
     
     def validation_epoch_end(self, outputs):
-        loss = torch.mean([x['val_loss'] for x in outputs])
-        acc = torch.mean([x['val_acc'] for x in outputs])
+        loss = torch.mean(torch.stack([x['val_loss'] for x in outputs]))
+        acc = torch.mean(torch.stack([x['val_acc'] for x in outputs]))
         tensorboard_log = {
             'val_loss': loss,
             'val_acc': acc
@@ -52,7 +53,7 @@ class BaseModel(pl.LightningModule):
         x, target = batch
         logits = self.model(x)
         loss = self.loss(logits, target)
-        acc = get_accuracy(logits, target)
+        acc = self.accuracy(logits, target)
 
         return {
             'test_loss': loss,

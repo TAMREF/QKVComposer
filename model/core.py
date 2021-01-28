@@ -20,14 +20,13 @@ class CoreModel(torch.nn.Module):
         self.fc = torch.nn.Linear(cfg.model.embedding_dim, cfg.model.vocab_size)
 
     def forward(self, x, length=None, writer=None):
-        if self.cfg.train.sample:
+        """if self.cfg.train.sample:
             return self.generate(x, length, None).contiguous()
-        else:
-            _, _, look_ahead_mask = utils.get_masked_with_pad_tensor(self.cfg.model.max_seq, x, x, self.cfg.model.vocab_size+1)
-            decoder, w = self.Decoder(x, mask=look_ahead_mask)
-            fc = self.fc(decoder)
-            return fc.contiguous() if self.training else (fc.contiguous(), [weight.contiguous() for weight in w])
-
+        else:"""
+        _, _, look_ahead_mask = utils.get_masked_with_pad_tensor(self.cfg.model.max_seq, x, x, self.cfg.model.vocab_size+1)
+        decoder, w = self.Decoder(x, mask=look_ahead_mask)
+        fc = self.fc(decoder)
+        return fc.contiguous()
     def generate(self,
                  prior: torch.Tensor,
                  length=2048):
