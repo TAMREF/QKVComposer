@@ -1,5 +1,5 @@
-# Template
-Template code for future endeavors
+# Music Transformer with Template
+Readable Music-Transformer using Template code
 
 ## Libraries
 
@@ -48,6 +48,7 @@ Refer to documentation regarding [hydra](https://hydra.cc) and [Trainer](https:/
  - [ ] Lay out proper datamodule
  - [ ] Add more optimizers
  - [ ] Add inference
+ - [ ] Add music generate code 
  - [ ] Prettify documentation
 
 ## Author
