@@ -8,7 +8,7 @@ from pytorch_lightning import loggers as pl_loggers
 from model.model import BaseModel
 from dataset.dataset import BaseDataModule
 
-@hydra.main(config_path=os.path.join('config', 'config.yaml'), strict=False)
+@hydra.main(config_path=os.path.join('config', 'config.yaml'), strict=True)
 def main(cfg: DictConfig):
     basemodel = BaseModel(cfg)
     basedata = BaseDataModule(cfg)
@@ -16,7 +16,7 @@ def main(cfg: DictConfig):
     checkpoint_callback = callbacks.ModelCheckpoint(
         monitor='val_loss',
         dirpath=cfg.train.checkpoint_dir,
-        filename='{}-{epoch:03d}-{val_loss:.4f}'.format(cfg.train.name),
+        # filename='{}-{val_loss:.4f}'.format(cfg.train.name),
         save_top_k=cfg.train.save_top_k
     )
     trainer = Trainer(
