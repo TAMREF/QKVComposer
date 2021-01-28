@@ -49,6 +49,7 @@ Refer to documentation regarding [hydra](https://hydra.cc) and [Trainer](https:/
  - [ ] Add more optimizers
  - [ ] Add inference
  - [ ] Add music generate code 
+ - [ ] Delete folder music_transformer
  - [ ] Prettify documentation
 
 ## Author

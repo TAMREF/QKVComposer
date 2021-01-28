@@ -10,6 +10,7 @@ from model.core import CoreModel
 class BaseModel(pl.LightningModule):
     def __init__(self, cfg: DictConfig):
         super(BaseModel, self).__init__()
+        self.save_hyperparameters()
         self.cfg = cfg
         self.loss = GenericLoss(cfg)
         self.accuracy = CategoricalAccuracy()

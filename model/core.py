@@ -33,15 +33,12 @@ class CoreModel(torch.nn.Module):
         decode_array = prior
         result_array = prior
         for i in Bar('generating').iter(range(length)):
-            if decode_array.size(1) > config.max_seq: 
+            if decode_array.size(1) > self.cfg.model.max_seq: 
                 decode_array = decode_array[:, 1:]
             
             result, _ = self.Decoder(decode_array, None)
             result = self.fc(result)
             result = result.softmax(-1)
-
-            if tf_board_writer:
-                tf_board_writer.add_image("logits", result, global_step=i)
 
             pdf = dist.OneHotCategorical(probs=result[:, -1])
             result = pdf.sample().argmax(-1).unsqueeze(-1)

@@ -12,7 +12,6 @@ class MusicDataset(Dataset):
     def __init__(self, cfg):
         self.cfg = cfg
         self.files = list(glob.glob(os.path.join(hydra.utils.get_original_cwd(), cfg.dataset.dir_path, '*.pt')))
-        # self.files = list(utils.find_files_by_extensions(cfg.dataset.dir_path, ['.pt']))
         print(os.getcwd())
         print(cfg.dataset.dir_path)
         print('len = ', len(self.files))
