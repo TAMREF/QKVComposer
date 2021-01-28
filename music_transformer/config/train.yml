@@ -1,0 +1,14 @@
+pickle_dir: './dataset/event_tensor'
+epochs: 5000
+batch_size: 8
+load_path:
+dropout: 0.1
+debug: 'false'
+label_smooth: 0.1
+l_r: 0.0003
+
+max_seq: 1024
+embedding_dim: 512
+num_layers: 10
+event_dim: 484
+experiment: 'small_data'

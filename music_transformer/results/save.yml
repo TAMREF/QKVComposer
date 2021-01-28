@@ -1,0 +1,14 @@
+CONFIG_FILE_NAME: save.yml
+batch_size: 256
+debug: 'false'
+dropout: 0.1
+embedding_dim: 128
+epochs: 5000
+event_dim: 484
+experiment: small_data
+l_r: 0.0004
+label_smooth: 0.1
+load_path: null
+max_seq: 128
+num_layers: 6
+pickle_dir: ./dataset/event_tensor
