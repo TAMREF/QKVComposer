@@ -23,7 +23,7 @@ class CoreModel(torch.nn.Module):
         if self.cfg.train.sample:
             return self.generate(x, length, None).contiguous()
         else:
-            _, _, look_ahead_mask = utils.get_masked_with_pad_tensor(self.cfg.model.max_seq, x, x, config.pad_token)
+            _, _, look_ahead_mask = utils.get_masked_with_pad_tensor(self.cfg.model.max_seq, x, x, self.cfg.model.vocab_size+1)
             decoder, w = self.Decoder(x, mask=look_ahead_mask)
             fc = self.fc(decoder)
             return fc.contiguous() if self.training else (fc.contiguous(), [weight.contiguous() for weight in w])

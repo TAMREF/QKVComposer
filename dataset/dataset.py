@@ -19,8 +19,10 @@ class MusicDataset(Dataset):
     def __len__(self):
         return len(self.files)
     def __getitem__(self, idx):
-        data = self._get_seq(self.files[idx], self.cfg.model.max_seq+1).unsqueeze(0)
-        return data[:-1], data[1:]
+        data = self._get_seq(self.files[idx], self.cfg.model.max_seq+1)
+        x = data[:-1]
+        y = data[1:]
+        return x, y
     def _get_seq(self, fname, max_length=None):
         with open(fname, 'rb') as f:
             data = torch.load(f)

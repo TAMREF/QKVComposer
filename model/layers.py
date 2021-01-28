@@ -1,4 +1,4 @@
-import dataset.utils
+import dataset.utils as utils
 
 import math as m
 import numpy as np
@@ -32,11 +32,12 @@ class DynamicPositionEmbedding(torch.nn.Module):
                 for i in range(embedding_dim)
             ]
             for pos in range(max_seq)
-        ]])
-        self.positional_embedding = embed_sinusoid_list
+        ]], dtype = np.float32)
+        self.positional_embedding = torch.from_numpy(embed_sinusoid_list).detach()
 
     def forward(self, x):
-        x = x + torch.from_numpy(self.positional_embedding[:, :x.size(1), :]).to(x.device, dtype=x.dtype)
+        self.positional_embedding = self.positional_embedding.to(x.device)
+        x = x + self.positional_embedding[:, :x.size(1), :]
         return x
 
 
