@@ -8,17 +8,20 @@ class BaseDataModule(pl.LightningDataModule):
         self.cfg = cfg
         self.batch_size = cfg.train.batch_size
 
+    def prepare_data(self):
+        pass
+
     def setup(self, stage=None):
-        self.train_data = None
-        self.val_data = None
-        self.test_data = None
+        self.train_dataset = None
+        self.val_dataset = None
+        self.test_dataset = None
 
     def train_dataloader(self):
-        return DataLoader(self.train_data, batch_size=self.batch)
+        return DataLoader(self.train_dataset, batch_size=self.batch)
 
     def val_dataloader(self):
-        return DataLoader(self.val_data, batch_size=self.batch)
+        return DataLoader(self.val_dataset, batch_size=self.batch)
 
     def test_dataloader(self):
-        return DataLoader(self.test_data, batch_size=self.batch)
+        return DataLoader(self.test_dataset, batch_size=self.batch)
 
