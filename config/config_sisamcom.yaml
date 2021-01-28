@@ -1,0 +1,40 @@
+model:
+  num_layer: 10
+  embedding_dim: 512
+  max_seq: 1024
+  vocab_size: 484
+  dropout: 0.1
+
+dataset:
+  dir_path: './dataset/event_tensor'
+
+train:
+  optim: 'adam'
+  accumulate: 1
+  batch_size: 32
+  betas: [0.5, 0.9]
+  checkpoint_dir: 'checkpoints'
+  epochs: 1500
+  fast_dev_run: False
+  gpus: 1
+  lr: 0.0003
+  log_dir: 'logs'
+  name: 'test'
+  parallel_calls: 32
+  sample: False
+  save_top_k: 3
+  steps: 100
+  trace: False
+  valid_split: 1024
+  version: 0
+  random_seed: 42
+  label_smooth: 0.1
+  reduction: 'mean'
+
+inference:
+  length: 1
+  path: 'dataset/inference'
+  save_path: 'samples'
+  condition_midi:
+  condition_length: 200
+  inference_length: 100
