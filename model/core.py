@@ -18,13 +18,12 @@ class CoreModel(torch.nn.Module):
             num_layers=cfg.model.num_layer, d_model=cfg.model.embedding_dim,
             input_vocab_size=cfg.model.vocab_size, rate=cfg.model.dropout, max_len=cfg.model.max_seq)
         self.fc = torch.nn.Linear(cfg.model.embedding_dim, cfg.model.vocab_size)
-
     def forward(self, x, length=None, writer=None):
         """if self.cfg.train.sample:
             return self.generate(x, length, None).contiguous()
         else:"""
-        _, _, look_ahead_mask = utils.get_masked_with_pad_tensor(self.cfg.model.max_seq, x, x, self.cfg.model.vocab_size+1)
-        decoder, w = self.Decoder(x, mask=look_ahead_mask)
+        seq_mask = utils.get_mask_tensor(self.cfg.model.max_seq).to(x.device)
+        decoder, w = self.Decoder(x, mask=seq_mask)
         fc = self.fc(decoder)
         return fc.contiguous()
     def generate(self,
