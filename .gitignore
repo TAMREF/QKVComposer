@@ -130,3 +130,23 @@ dmypy.json
 
 data/*
 outputs/*
+
+#zip
+*zip
+
+#tensors
+*pt
+*pth
+
+#midi
+*midi
+*mid
+
+#pickle
+*pickle
+
+#logs
+*/logs
+
+#vscode
+.vscode
