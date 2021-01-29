@@ -1,7 +1,6 @@
 from omegaconf.dictconfig import DictConfig
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset, random_split
-import dataset.utils as utils
 import torch
 import glob
 import os
@@ -11,20 +10,21 @@ import random
 class MusicDataset(Dataset):
     def __init__(self, cfg):
         self.cfg = cfg
+        #Load file names of event tensors(long tensor)
         self.files = list(glob.glob(os.path.join(hydra.utils.get_original_cwd(), cfg.dataset.dir_path, '*.pt')))
-        print(os.getcwd())
-        print(cfg.dataset.dir_path)
-        print('len = ', len(self.files))
+        print('length of full dataset = ', len(self.files))
     def __len__(self):
         return len(self.files)
     def __getitem__(self, idx):
-        data = self._get_seq(self.files[idx], self.cfg.model.max_seq+1)
-        x = data[:-1]
-        y = data[1:]
-        return x, y
+        #Get input and target tensors
+        data = self._get_seq(self.files[idx], self.cfg.model.max_seq + 1)
+        return data[:-1], data[1:]
     def _get_seq(self, fname, max_length=None):
+        #Return event tensor(long tensor) from tensor file
         with open(fname, 'rb') as f:
             data = torch.load(f)
+
+        #Raise error if length of tensor is less then max_length
         if max_length is not None:
             if max_length <= len(data):
                 start = random.randrange(0,len(data) - max_length)
@@ -44,6 +44,8 @@ class BaseDataModule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         full_dataset = MusicDataset(self.cfg)
+
+        #Split dataset for train, eval, test.
         len_data = len(full_dataset)
         len_train = int(len_data*0.8)
         len_val = int(len_data*0.1)

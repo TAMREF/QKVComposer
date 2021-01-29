@@ -6,7 +6,7 @@ import json
  
 import numpy as np
 import torch
-from noteseq2tensor import rawData2Indices
+from preprocess.noteseq2tensor import rawData2Indices
 
 def list2midi(note_json, ofpath = "results/test.mid"):
     ## note_json is list, output saved as midi file at filepath
