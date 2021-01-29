@@ -21,7 +21,7 @@ train:
   log_dir: 'logs'
   name: 'test'
   parallel_calls: 32
-  resume: 'outputs/2021-01-29/12-44-46/checkpoints/epoch=3677-step=14711.ckpt'
+  resume: 'outputs/2021-01-29/14-38-06/checkpoints/epoch=5459-step=21839.ckpt'
   sample: False
   save_top_k: 3
   steps: 1000
@@ -34,8 +34,8 @@ train:
 
 inference:
   length: 1
-  path: 'dataset/inference'
+  checkpoint_path: 'outputs/2021-01-29/16-13-01/checkpoints/epoch=7575-step=30303.ckpt'
   save_path: 'samples'
-  condition_midi:
+  condition_pt: #'dataset/event_tensor/MIDI-Unprocessed_02_R1_2006_01-04_ORIG_MID--AUDIO_02_R1_2006_03_Track03_wav.pt'
   condition_length: 200
-  inference_length: 2000
+  inference_length: 1000
