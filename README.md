@@ -17,7 +17,7 @@ The dataset is defined under `dataset/`.
 
 The configuration YAML files are located under `config/`.
 
-The preprocess functions are located under `preprocess/.`.
+The preprocess functions are located under `preprocess/`.
 
 ### Config
 
@@ -54,7 +54,7 @@ Refer to documentation regarding [hydra](https://hydra.cc) and [Trainer](https:/
 python preprocess/generate_tensor_datasets.py
 ```
 
-2. Set configuration file `config/config.yaml` for train and inference. 
+2. Set configuration file `config/config.yaml` for train and inference.
 
 3. Run `trainer.py`.
 
@@ -62,7 +62,11 @@ python preprocess/generate_tensor_datasets.py
 python trainer.py
 ```
 
-4. Run
+4. Run `inference.py`
+
+```bash
+python inference.py
+```
 
 ## TODO
 
