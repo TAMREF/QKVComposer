@@ -16,7 +16,7 @@ def main(cfg: DictConfig):
     checkpoint_callback = callbacks.ModelCheckpoint(
         monitor='val_loss',
         dirpath=cfg.train.checkpoint_dir,
-        filename='{}-{epoch:03d}-{val_loss:.4f}'.format(cfg.train.name),
+        # filename='{}-{epoch:03d}-{val_loss:.4f}'.format(cfg.train.name),
         save_top_k=cfg.train.save_top_k
     )
     trainer = Trainer(

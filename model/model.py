@@ -39,8 +39,8 @@ class BaseModel(pl.LightningModule):
         }
     
     def validation_epoch_end(self, outputs):
-        loss = torch.mean([x['val_loss'] for x in outputs])
-        acc = torch.mean([x['val_acc'] for x in outputs])
+        loss = torch.stack([x['val_loss'] for x in outputs]).mean()
+        acc = torch.stack([x['val_acc'] for x in outputs]).mean()
         tensorboard_log = {
             'val_loss': loss,
             'val_acc': acc
@@ -60,8 +60,8 @@ class BaseModel(pl.LightningModule):
         }
 
     def test_epoch_end(self, outputs):
-        loss = torch.mean([x['test_loss'] for x in outputs])
-        acc = torch.mean([x['test_acc'] for x in outputs])
+        loss = torch.stack([x['test_loss'] for x in outputs]).mean()
+        acc = torch.stack([x['test_acc'] for x in outputs]).mean()
         tensorboard_log = {
             'test_loss': loss,
             'test_acc': acc
