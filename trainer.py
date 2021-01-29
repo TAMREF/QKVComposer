@@ -16,7 +16,6 @@ def main(cfg: DictConfig):
     checkpoint_callback = callbacks.ModelCheckpoint(
         monitor='val_loss',
         dirpath=cfg.train.checkpoint_dir,
-        # filename='{}-{val_loss:.4f}'.format(cfg.train.name),
         save_top_k=cfg.train.save_top_k
     )
     trainer = Trainer(
@@ -28,6 +27,7 @@ def main(cfg: DictConfig):
         fast_dev_run=cfg.train.fast_dev_run,
         gpus=cfg.train.gpus,
         logger=logger,
+        resume_from_checkpoint=None if cfg.train.resume is '' else cfg.train.resume,
         terminate_on_nan=True,
         weights_save_path=cfg.train.checkpoint_dir
     )
