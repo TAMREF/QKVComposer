@@ -14,6 +14,7 @@ train:
   name: 'test'
   optim: 'adam'
   parallel_calls: 32
+  resume: ''
   sample: False
   save_top_k: 3
   steps: 100
