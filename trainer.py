@@ -22,12 +22,13 @@ def main(cfg: DictConfig):
         accelerator=None if platform.system() == 'Windows' else 'ddp',
         accumulate_grad_batches=cfg.train.accumulate,
         auto_scale_batch_size=True,
+        max_epochs=cfg.train.epochs,
         callbacks=[checkpoint_callback],
         default_root_dir=cfg.train.log_dir,
         fast_dev_run=cfg.train.fast_dev_run,
         gpus=cfg.train.gpus,
         logger=logger,
-        resume_from_checkpoint=None if cfg.train.resume is '' else cfg.train.resume,
+        resume_from_checkpoint=None if cfg.train.resume == '' else os.path.join(hydra.utils.get_original_cwd(), cfg.train.resume),
         terminate_on_nan=True,
         weights_save_path=cfg.train.checkpoint_dir
     )

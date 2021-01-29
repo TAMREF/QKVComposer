@@ -9,7 +9,7 @@ from preprocess.preprocess_utils import *
 @hydra.main(config_path=os.path.join('config', 'config.yaml'), strict=True)
 def main(cfg: DictConfig):
     base_path = hydra.utils.get_original_cwd()
-    PATH = os.path.join(base_path, 'outputs/2021-01-29/10-53-16/checkpoints/epoch=981-step=3927.ckpt')
+    PATH = os.path.join(base_path, 'outputs/2021-01-29/12-44-46/checkpoints/epoch=3677-step=14711.ckpt')
     model = BaseModel.load_from_checkpoint(PATH)
     model.eval()
     if cfg.inference.condition_midi == None:
