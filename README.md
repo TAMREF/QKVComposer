@@ -9,7 +9,7 @@ See [requirements.txt](requirements.txt)
 
 The outer training loop is located at [trainer.py](trainer.py).
 
-The inference functions are to be located at [inference.py](inference.py).
+The inference functions(generating music) are to be located at [inference.py](inference.py).
 
 The model, loss function, and LightningModule is defined under `model/`.
 
@@ -17,19 +17,26 @@ The dataset is defined under `dataset/`.
 
 The configuration YAML files are located under `config/`.
 
+The preprocess functions are located under `preprocess/.`.
+
+### Config
+
+All configurations(batch size, model size, etc...) for the dataset, model, train, inference are in this file.
+
+
 ### Model
 
-Note that `model/model.py` contains the LightningModule, and `model/core.py` contains the actual model.
-
-All additional modules should be designed in files under `model/` and included in `model/model.py`.
-
-Refer to documentation regarding [LightningModule](https://pytorch-lightning.readthedocs.io/en/stable/lightning_module.html) for further info.
+Use music_transformer model with trainable relative positional encoding and sinusoidal positional encoding.
 
 ### Dataset
 
 All data modification functions should be put under `dataset/utils.py` and included as necessary.
 
-Refer to documentation regarding [LightningDataModule](https://pytorch-lightning.readthedocs.io/en/stable/datamodules.html) for further info.
+The event_tensor created in the generate_tensor_database should be located here.
+
+### Preprocess
+
+Preprocess functions to train a model. 
 
 ### Training
 
@@ -39,6 +46,23 @@ Checkpointing, tensorboard logging, early stopping, gradient accumulation, multi
 
 Refer to documentation regarding [hydra](https://hydra.cc) and [Trainer](https://pytorch-lightning.readthedocs.io/en/stable/trainer.html) for further info.
 
+## Run trainer and inference
+
+1. Locate midi dataset to `dataset/midi` and run python `generate_tensor_datasets.py`.
+
+```bash
+python preprocess/generate_tensor_datasets.py
+```
+
+2. Set configuration file `config/config.yaml` for train and inference. 
+
+3. Run `trainer.py`.
+
+```bash
+python trainer.py
+```
+
+4. Run
 
 ## TODO
 
@@ -51,7 +75,3 @@ Refer to documentation regarding [hydra](https://hydra.cc) and [Trainer](https:/
  - [ ] Add music generate code 
  - [ ] Delete folder music_transformer
  - [ ] Prettify documentation
-
-## Author
-
-- [June Young Yi](https://github.com/Rick-McCoy)
