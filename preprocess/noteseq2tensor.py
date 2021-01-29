@@ -141,19 +141,22 @@ def generateIndices(events: List[NoteEvent]):
         indices.append(index)
     return indices
 
+# converts a list of [Pitch, Velocity, Time_start, Time_End] to indices.
+def rawData2Indices(noteRawData: List[List]):
+    for elem in noteRawData:
+        assert len(elem) == 4
+    
+    noteSeqArr = [NoteSeq(elem[0], elem[1], elem[2], elem[3]) for elem in noteRawData]
+    eventArr = makeEventTimeline(noteSeqArr)
+    #print(*[str(x) for x in eventArr[:50]],sep='\n') #for debug
+    indices = generateIndices(eventArr)
+    return indices
+
 # the main access point of this file. converts a raw JSON file into the indices.
 def json2Indices(path: str):
     with open(path, 'rt') as f:
         jsonArr = json.load(f)
+        return rawData2Indices(jsonArr)
         
-        for elem in jsonArr:
-            assert len(elem) == 4
-        
-        noteSeqArr = [ NoteSeq(elem[0], elem[1], elem[2], elem[3]) for elem in jsonArr ]
-        eventArr = makeEventTimeline(noteSeqArr)
-        #print(*[str(x) for x in eventArr[:50]],sep='\n') #for debug
-        indices = generateIndices(eventArr)
-        return indices
-
 if __name__ == '__main__': # Testing environment
     print(json2Indices(path = os.path.join(os.getcwd(), 'outputs', '0.json')))
