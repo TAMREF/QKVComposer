@@ -61,7 +61,7 @@ def tensor2list(torch_tensor):
             song_notes.append([out_note, VELOCITY, note_buffer[out_note], TIME])
             note_buffer[out_note] = 0
         else:
-            TIME += 0.01 * (idx - TS_EVO)
+            TIME += 0.01 * (idx - TS_EVO + 1)
     
     return song_notes
     
@@ -69,7 +69,7 @@ def tensor2list(torch_tensor):
 
 if __name__ == '__main__': # Testing environment
 
-    LIST = midi2list(ifpath = "data/test.midi")
+    LIST = midi2list(ifpath = "data/a.midi")
     TENSOR = list2tensor(LIST)
     LIST_rec = tensor2list(TENSOR)
     list2midi(LIST_rec, ofpath = "test_rec.midi")
