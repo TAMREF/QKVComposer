@@ -73,9 +73,9 @@ python inference.py
  - [x] Initialize requirements.txt
  - [x] Add loss functions
  - [x] Add datamodule
+ - [x] Add inference
+ - [x] Add music generate code 
+ - [x] Delete folder music_transformer
  - [ ] Lay out proper datamodule
  - [ ] Add more optimizers
- - [ ] Add inference
- - [ ] Add music generate code 
- - [ ] Delete folder music_transformer
  - [ ] Prettify documentation
