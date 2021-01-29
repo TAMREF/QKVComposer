@@ -1,7 +1,7 @@
 model:
   num_layer: 6
-  embedding_dim: 512
-  max_seq: 512
+  embedding_dim: 256
+  max_seq: 256
   vocab_size: 484
   dropout: 0.1
 
@@ -11,7 +11,7 @@ dataset:
 train:
   optim: 'adam'
   accumulate: 1
-  batch_size: 16
+  batch_size: 256
   betas: [0.5, 0.9]
   checkpoint_dir: 'checkpoints'
   epochs: 1500
@@ -23,7 +23,7 @@ train:
   parallel_calls: 32
   sample: False
   save_top_k: 3
-  steps: 100
+  steps: 1000
   trace: False
   valid_split: 1024
   version: 0
@@ -37,4 +37,4 @@ inference:
   save_path: 'samples'
   condition_midi:
   condition_length: 200
-  inference_length: 100
+  inference_length: 2000
