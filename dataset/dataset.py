@@ -12,8 +12,8 @@ class MusicDataset(Dataset):
     def __init__(self, cfg):
         self.cfg = cfg
         #Load file names of event tensors(long tensor)
-        self.files = list(glob.glob(os.path.join(hydra.utils.get_original_cwd(), cfg.dataset.dir_path, '*/*.midi')))
-        self.files = list(filter(lambda f : list2tensor(midi2list(ifpath = f)).size()[0] >= cfg.model.max_seq+1, self.files))
+        self.files = list(glob.glob(os.path.join(hydra.utils.get_original_cwd(), cfg.dataset.dir_path, '*.pt')))
+        self.files = list(filter(lambda f : torch.load(f).size()[0] >= cfg.model.max_seq+1, self.files))
         print('length of full dataset = ', len(self.files))
     def __len__(self):
         return len(self.files)
@@ -23,7 +23,7 @@ class MusicDataset(Dataset):
         return data[:-1], data[1:]
     def _get_seq(self, fname, max_length=None):
         #Return event tensor(long tensor) from tensor file
-        data = list2tensor(midi2list(ifpath = fname))
+        data = torch.load(fname)
         #Raise error if length of tensor is less then max_length
         if max_length is not None:
             if max_length <= len(data):
