@@ -6,7 +6,7 @@ model:
   dropout: 0.1
 
 dataset:
-  dir_path: './dataset/event_tensor'
+  dir_path: './dataset/midi'
 
 train:
   optim: 'adam'

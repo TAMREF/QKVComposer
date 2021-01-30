@@ -1,7 +1,5 @@
 import note_seq
 from note_seq.protobuf import music_pb2
-
-from glob import glob
 import json
  
 import numpy as np
