@@ -13,7 +13,7 @@ class MusicDataset(Dataset):
         self.cfg = cfg
         #Load file names of event tensors(long tensor)
         self.files = list(glob.glob(os.path.join(hydra.utils.get_original_cwd(), cfg.dataset.dir_path, '*/*.midi')))
-        self.files = list(filter(lambda f : len(midi2list(ifpath = f)) >= cfg.model.max_seq+1, self.files))
+        self.files = list(filter(lambda f : list2tensor(midi2list(ifpath = f)).size().numpy()[0] >= cfg.model.max_seq+1, self.files))
         print('length of full dataset = ', len(self.files))
     def __len__(self):
         return len(self.files)
