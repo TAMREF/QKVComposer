@@ -28,7 +28,7 @@ def main(cfg: DictConfig):
         fast_dev_run=cfg.train.fast_dev_run,
         gpus=cfg.train.gpus,
         logger=logger,
-        resume_from_checkpoint=None if cfg.train.resume == '' else os.path.join(hydra.utils.get_original_cwd(), cfg.train.resume),
+        resume_from_checkpoint=None if cfg.train.resume is None else os.path.join(hydra.utils.get_original_cwd(), cfg.train.resume),
         terminate_on_nan=True,
         weights_save_path=cfg.train.checkpoint_dir
     )
