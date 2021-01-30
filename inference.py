@@ -6,7 +6,7 @@ from omegaconf import DictConfig
 from preprocess.preprocess_utils import *
 
 
-@hydra.main(config_path=os.path.join('config', 'config.yaml'), strict=True)
+@hydra.main(config_path=os.path.join('config', 'config_sisamcom.yaml'), strict=True)
 def main(cfg: DictConfig):
     base_path = hydra.utils.get_original_cwd()
     PATH = os.path.join(base_path, cfg.inference.checkpoint_path)

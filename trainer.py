@@ -8,7 +8,7 @@ from pytorch_lightning import loggers as pl_loggers
 from model.model import BaseModel
 from dataset.dataset import BaseDataModule
 
-@hydra.main(config_path=os.path.join('config', 'config.yaml'), strict=True)
+@hydra.main(config_path=os.path.join('config', 'config_sisamcom.yaml'), strict=True)
 def main(cfg: DictConfig):
     basemodel = BaseModel(cfg)
     basedata = BaseDataModule(cfg)
