@@ -12,7 +12,7 @@ class MusicDataset(Dataset):
     def __init__(self, cfg):
         self.cfg = cfg
         #Load file names of event tensors(long tensor)
-        self.files = list(glob.glob(os.path.join(hydra.utils.get_original_cwd(), cfg.dataset.dir_path, '*.midi')))
+        self.files = list(glob.glob(os.path.join(hydra.utils.get_original_cwd(), cfg.dataset.dir_path, '*/*.midi')))
         print('length of full dataset = ', len(self.files))
     def __len__(self):
         return len(self.files)
