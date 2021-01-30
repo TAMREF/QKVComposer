@@ -58,6 +58,8 @@ def tensor2list(torch_tensor):
             note_buffer[in_note] = TIME
         elif OUT_EVO <= idx < TS_EVO:
             out_note = idx - OUT_EVO
+            if note_buffer[out_note] == 0:
+                continue
             song_notes.append([out_note, VELOCITY, note_buffer[out_note], TIME])
             note_buffer[out_note] = 0
         else:
