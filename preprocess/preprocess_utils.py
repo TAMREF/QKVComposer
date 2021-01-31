@@ -25,10 +25,10 @@ def midi2list(ifpath = "data/test.mid"):
     sirials = list(map(lambda x : [x.pitch, x.velocity, x.start_time, x.end_time], list(ns.notes)))    
     return sirials
 
-def list2tensor(note_json):
+def list2tensor(note_json, pitchShift=0, decelRate=1.0):
 
     # return one-hots from decoded json file.
-    indices = rawData2Indices(note_json)
+    indices = rawData2Indices(note_json, pitchShift=pitchShift, decelRate=decelRate)
     tensor = torch.tensor(indices).long()
     return tensor
 

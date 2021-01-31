@@ -51,18 +51,18 @@ class NoteEvent(object):
 
 # NoteSeq object is a representation of a single note.
 class NoteSeq(object):
-    def __init__(self, pitch:int, velocity:int, startTime:float, endTime:float):
-        self.pitch = pitch
+    def __init__(self, pitch:int, velocity:int, startTime:float, endTime:float, pitchShift=0, decelRate=1.0):
+        self.pitch = pitch + pitchShift
         self.velocity = velocity
-        self.startTime = startTime
-        self.endTime = endTime
+        self.startTime = startTime * decelRate
+        self.endTime = endTime * decelRate
 
-        if pitch < 0 or pitch > 127:
+        if self.pitch < 0 or self.pitch > 127:
             raise Exception('pitch is out of range')
-        if velocity < 0 or velocity > 127:
+        if self.velocity < 0 or self.velocity > 127:
             raise Exception('velocity is out of range')
         
-        if startTime > endTime:
+        if self.startTime > self.endTime:
             raise Exception('startTime goes after endTime')
 
     def __str__(self):
@@ -123,18 +123,18 @@ def generateIndices(events: List[NoteEvent]):
     return indices
 
 # converts a list of [Pitch, Velocity, Time_start, Time_End] to indices.
-def rawData2Indices(noteRawData: List[List]):
+def rawData2Indices(noteRawData: List[List], pitchShift=0, decelRate=1.0):
     for elem in noteRawData:
         assert len(elem) == 4
     
-    noteSeqArr = [NoteSeq(elem[0], elem[1], elem[2], elem[3]) for elem in noteRawData]
+    noteSeqArr = [NoteSeq(elem[0], elem[1], elem[2], elem[3], pitchShift=pitchShift, decelRate=decelRate) for elem in noteRawData]
     eventArr = makeEventTimeline(noteSeqArr)
     #print(*[str(x) for x in eventArr[:50]],sep='\n') #for debug
     indices = generateIndices(eventArr)
     return indices
 
 # the main access point of this file. converts a raw JSON file into the indices.
-def json2Indices(path: str):
+def json2Indices(path: str, pitchShift=0, decelRate=1.0):
     with open(path, 'rt') as f:
         jsonArr = json.load(f)
         return rawData2Indices(jsonArr)
