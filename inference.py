@@ -3,7 +3,8 @@ import hydra
 import torch
 import os
 from omegaconf import DictConfig
-from preprocess.preprocess_utils import *
+import numpy as numpy
+from preprocess.preprocess_utils import tensor2list, list2midi
 
 
 @hydra.main(config_path=os.path.join('config', 'config_sisamcom.yaml'), strict=True)
