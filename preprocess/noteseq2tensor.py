@@ -3,27 +3,8 @@ import torch
 import json
 import os
 from typing import List
-    
-EVENT_TYPE_TO_PRIORITY = {
-    "SET_VELOCITY" : 1,
-    "NOTE_OFF" : 2,
-    "NOTE_ON" : 3,
-    "TIME_SHIFT" : 4
-}
+from eventconst import eventConst as EC
 
-ONEHOT_INDEX_OFFSET = {
-    "SET_VELOCITY" : 0,
-    "NOTE_ON" : 128,
-    "NOTE_OFF" : 256,
-    "TIME_SHIFT" : 384
-}
-
-EVENT_TYPE_TO_LENGTH = {
-    "SET_VELOCITY" : 128,
-    "NOTE_ON" : 128,
-    "NOTE_OFF" : 128,
-    "TIME_SHIFT" : 100
-}
 NUM_FEATURES = 484
 
 class NoteEvent(object):
@@ -35,9 +16,8 @@ class NoteEvent(object):
     """
     def __init__(self, time, eventType, pitch = None, velocity = None, duration = None):
         self.time = time
-        assert EVENT_TYPE_TO_PRIORITY.get(eventType)
         self.eventType = eventType
-        self.priority = EVENT_TYPE_TO_PRIORITY[self.eventType]
+        self.priority = EC.priority(self.eventType)
         self.pitch = pitch
         self.velocity = velocity
         self.duration = duration
@@ -51,20 +31,21 @@ class NoteEvent(object):
         return self.time < other.time
     
     def getIndex(self):
-        index = ONEHOT_INDEX_OFFSET[self.eventType]
-        if self.eventType == 'SET_VELOCITY':
-            index += self.velocity
-        elif self.eventType == 'NOTE_ON' or self.eventType == 'NOTE_OFF':
-            index += self.pitch
-        elif self.eventType == 'TIME_SHIFT':
+        index = EC.offset(self.eventType)
+        if self.eventType == EC.VEL:
+            index += self.velocity #velocity - 1?
+        elif self.eventType == EC.ON or self.eventType == EC.OFF:
+            index += self.pitch #pitch ? pitch - 1?
+        elif self.eventType == EC.TS:
             index += (self.duration - 1) # duration is 1 - 100 unit, thus convert to 0-based index
         else:
             assert False
         return index
     
     def validIndexRange(self, index: int):
-        offset = ONEHOT_INDEX_OFFSET[self.eventType]
-        if index < offset or index >= offset + EVENT_TYPE_TO_LENGTH[self.eventType]:
+        offset = EC.offset(self.eventType)
+        if index < offset or index >= offset + EC.length(self.eventType):
+            print('type = {}, offset = {}, index = {}, offsetEnds = {}'.format(self.eventType.name, offset, index, offset + EC.length(self.eventType)))
             return False
         return True
 
@@ -93,13 +74,13 @@ class NoteSeq(object):
                 self.makeNoteOnEvents()]
 
     def makeSetVelocityEvents(self):
-        return NoteEvent(self.startTime, 'SET_VELOCITY', velocity = self.velocity)
+        return NoteEvent(self.startTime, EC.VEL, velocity = self.velocity)
 
     def makeNoteOnEvents(self):
-        return NoteEvent(self.startTime, 'NOTE_ON',      pitch = self.pitch)
+        return NoteEvent(self.startTime, EC.ON ,      pitch = self.pitch)
 
     def makeNoteOffEvents(self):
-        return NoteEvent(self.endTime,   'NOTE_OFF',     pitch = self.pitch)
+        return NoteEvent(self.endTime,   EC.OFF,     pitch = self.pitch)
 
 #makeTimeShiftEvents function makes TIME_SHIFT events, for durations possibly exceed 1000ms.
 def makeTimeShiftEvents(startTime, duration):
@@ -108,11 +89,11 @@ def makeTimeShiftEvents(startTime, duration):
 
     nowTime = startTime
     while quantDuration > 100:
-        timeShiftEvents.append( NoteEvent(nowTime, 'TIME_SHIFT', duration = 100) )
+        timeShiftEvents.append( NoteEvent(nowTime, EC.TS, duration = 100) )
         quantDuration -= 100
         nowTime += 1.0
     if quantDuration > 0:
-        timeShiftEvents.append( NoteEvent(nowTime, 'TIME_SHIFT', duration = quantDuration) )
+        timeShiftEvents.append( NoteEvent(nowTime, EC.TS, duration = quantDuration) )
     
     return timeShiftEvents
 

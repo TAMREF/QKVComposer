@@ -4,7 +4,8 @@ import json
  
 import numpy as np
 import torch
-from preprocess.noteseq2tensor import rawData2Indices
+from noteseq2tensor import rawData2Indices
+from eventconst import eventConst as EC
 
 def list2midi(note_json, ofpath = "results/test.mid"):
     ## note_json is list, output saved as midi file at filepath
@@ -33,13 +34,6 @@ def list2tensor(note_json):
 
 ## THIS PART SHOULD BE REFACTORED
 
-
-IN_EVO = 128
-OUT_EVO = 128 + IN_EVO
-TS_EVO = 128 + OUT_EVO
-
-###
-
 def tensor2list(torch_tensor):
     VELOCITY = 0
     TIME = 0.0
@@ -49,18 +43,17 @@ def tensor2list(torch_tensor):
     index_list = torch_tensor.tolist()
 
     for idx in index_list:
-        if 0 <= idx < IN_EVO:
-            VELOCITY = idx
-        elif IN_EVO <= idx < OUT_EVO:
-            in_note = idx - IN_EVO
-            note_buffer[in_note] = TIME
-        elif OUT_EVO <= idx < TS_EVO:
-            out_note = idx - OUT_EVO
-            song_notes.append([out_note, VELOCITY, note_buffer[out_note], TIME])
-            note_buffer[out_note] = 0
-        else:
-            TIME += 0.01 * (idx - TS_EVO + 1)
-    
+        et, v, p, d = EC.getEntitiesFromIndex(idx)
+        if v:
+            VELOCITY = v
+        if d:
+            TIME += 0.01 * d
+        if et == EC.ON:
+            note_buffer[p] = TIME
+        if et == EC.OFF:
+            song_notes.append([p, VELOCITY, note_buffer[p], TIME])
+            note_buffer[p] = 0
+
     return song_notes
     
 
