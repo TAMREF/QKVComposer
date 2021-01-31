@@ -44,17 +44,15 @@ class CoreModel(torch.nn.Module):
             result = result.softmax(-1)
             
             pdf = dist.OneHotCategorical(probs=result[:, -1])
-            pdf_sampled = pdf.sample()
-            result = -1
+            result = pdf.sample().argmax(-1).unsqueeze(-1)
             while True:
-                result = pdf_sampled.argmax(-1).unsqueeze(-1)
                 if NEP.registerFromIndex(result):
                     break
                 else:
-                    pdf_sampled[result] = 0
-            
+                    result = pdf.sample().argmax(-1).unsqueeze(-1)
             decode_array = torch.cat((decode_array, result), dim=-1)
             result_array = torch.cat((result_array, result), dim=-1)
+        print('There were {} complete notes'.format(NEP.validNoteCount))
         return result_array[0]
 
     def test(self):

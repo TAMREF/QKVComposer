@@ -3,7 +3,7 @@ import torch
 import json
 import os
 from typing import List
-from eventconst import eventConst as EC
+from preprocess.eventconst import eventConst as EC
 
 NUM_FEATURES = 484
 

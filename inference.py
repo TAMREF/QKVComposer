@@ -3,7 +3,7 @@ import hydra
 import torch
 import os
 from omegaconf import DictConfig
-import numpy as numpy
+import numpy as np
 from preprocess.preprocess_utils import tensor2list, list2midi
 
 
@@ -14,7 +14,7 @@ def main(cfg: DictConfig):
     model = BaseModel.load_from_checkpoint(PATH)
     model.eval()
     if cfg.inference.condition_pt == None:
-        inputs = np.array([[200, 10, 480]])
+        inputs = np.array([[200]])
     else:
         condition_pt = torch.load(os.path.join(hydra.utils.get_original_cwd(), cfg.inference.condition_pt))
         inputs = condition_pt[:cfg.inference.condition_length].unsqueeze(0).numpy()
