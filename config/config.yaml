@@ -1,9 +1,9 @@
 model:
-  d_ff: 2048
-  d_hidden: 512
-  d_embed: 512
+  d_ff: 128
+  d_hidden: 128
+  d_embed: 128
   dropout: 0.1
-  data_len: 2048
+  data_len: 128
   n_head: 8
   num_layers: 6
   num_tokens: 385
@@ -17,13 +17,15 @@ log:
   version: 0
 
 data:
-  num_workers: 32
-  dataset_path: ''
+  num_workers: 0
+  datamidi_dir: 'dataset/midi'
   max_len: 16384
+  make_note_tensor: False
+  notetensor_dir: 'dataset/note_tensor'
 
 train:
   accumulate: 1
-  batch_size: 64
+  batch_size: 2
   betas: [0.5, 0.9]
   epochs: 1500
   fast_dev_run: False
