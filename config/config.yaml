@@ -4,31 +4,38 @@ model:
   dropout: 0.1
   n_head: 8
   num_layers: 6
-  num_tokens: PLACEHOLDER
-  padding_idx: PLACEHOLDER
+  num_tokens: 385
+  padding_idx: 384
+
+log:
+  checkpoint_dir: 'checkpoints'
+  log_dir: 'logs'
+  name: 'test'
+  trace: False
+  version: 0
+
+data:
+  num_workers: 32
+  dataset_path: ''
+  data_len: 2048
 
 train:
   accumulate: 1
   batch_size: 64
   betas: [0.5, 0.9]
-  checkpoint_dir: 'checkpoints'
   epochs: 1500
   fast_dev_run: False
   gpus: 1
   lr: 0.0003
-  log_dir: 'logs'
-  name: 'test'
   optim: 'adam'
   parallel_calls: 32
   resume: ''
-  sample: False
   save_top_k: 3
   steps: 100
-  trace: False
   valid_split: 1024
-  version: 0
 
 inference:
+  sample: False
   length: 1
   path: ''
   save_path: 'samples'
