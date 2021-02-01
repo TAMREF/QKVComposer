@@ -4,14 +4,14 @@ import pytorch_lightning as pl
 
 from torch import optim
 
-from model.loss import GenericLoss, get_accuracy
+from model.loss import TemporalLoss, get_accuracy
 from model.core import Transformer
 
 class Baseline(pl.LightningModule):
     def __init__(self, cfg: DictConfig):
         super(Baseline, self).__init__()
         self.cfg = cfg
-        self.loss = GenericLoss(cfg)
+        self.loss = TemporalLoss(cfg)
         self.model = Transformer(cfg)
 
     def forward(self, x: torch.Tensor):
@@ -31,7 +31,7 @@ class Baseline(pl.LightningModule):
         x, target = batch
         logits = self.model(x)
         loss = self.loss(logits, target)
-        acc = get_accuracy(logits, target)
+        acc = get_accuracy(logits[0], target[0])
 
         return {
             'val_loss': loss,
@@ -52,7 +52,7 @@ class Baseline(pl.LightningModule):
         x, target = batch
         logits = self.model(x)
         loss = self.loss(logits, target)
-        acc = get_accuracy(logits, target)
+        acc = get_accuracy(logits[0], target[0])
 
         return {
             'test_loss': loss,
