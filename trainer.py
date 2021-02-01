@@ -5,12 +5,12 @@ from omegaconf import DictConfig
 from pytorch_lightning import Trainer, callbacks
 from pytorch_lightning import loggers as pl_loggers
 
-from model.model import BaseModel
+from model.model import Baseline
 from dataset.dataset import BaseDataModule
 
 @hydra.main(config_path=os.path.join('config', 'config.yaml'), strict=False)
 def main(cfg: DictConfig):
-    basemodel = BaseModel(cfg)
+    basemodel = Baseline(cfg)
     basedata = BaseDataModule(cfg)
     logger = pl_loggers.TensorBoardLogger(save_dir=cfg.train.log_dir, version=cfg.train.version)
     checkpoint_callback = callbacks.ModelCheckpoint(

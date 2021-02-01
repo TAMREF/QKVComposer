@@ -1,5 +1,11 @@
 model:
-  size: 10
+  d_ff: 2048
+  d_hidden: 512
+  dropout: 0.1
+  n_head: 8
+  num_layers: 6
+  num_tokens: PLACEHOLDER
+  padding_idx: PLACEHOLDER
 
 train:
   accumulate: 1

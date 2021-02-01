@@ -5,14 +5,14 @@ import pytorch_lightning as pl
 from torch import optim
 
 from model.loss import GenericLoss, get_accuracy
-from model.core import CoreModel
+from model.core import Transformer
 
-class BaseModel(pl.LightningModule):
+class Baseline(pl.LightningModule):
     def __init__(self, cfg: DictConfig):
-        super(BaseModel, self).__init__()
+        super(Baseline, self).__init__()
         self.cfg = cfg
         self.loss = GenericLoss(cfg)
-        self.model = CoreModel(cfg)
+        self.model = Transformer(cfg)
 
     def forward(self, x: torch.Tensor):
         return self.model(x)
