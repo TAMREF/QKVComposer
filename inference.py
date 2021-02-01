@@ -11,7 +11,8 @@ from preprocess.preprocess_utils import tensor2list, list2midi
 def main(cfg: DictConfig):
     base_path = hydra.utils.get_original_cwd()
     PATH = os.path.join(base_path, cfg.inference.checkpoint_path)
-    model = BaseModel.load_from_checkpoint(PATH)
+    device = 'cuda' if cfg.train.gpus > 0 else 0
+    model = BaseModel.load_from_checkpoint(PATH).to(device)
     model.eval()
     if cfg.inference.condition_pt == None:
         inputs = np.array([[200]])
@@ -19,10 +20,10 @@ def main(cfg: DictConfig):
         condition_pt = torch.load(os.path.join(hydra.utils.get_original_cwd(), cfg.inference.condition_pt))
         inputs = condition_pt[:cfg.inference.condition_length].unsqueeze(0).numpy()
     
-    inputs = torch.from_numpy(inputs)
+    inputs = torch.from_numpy(inputs).to(device)
     result = model.model.generate(inputs, cfg.inference.inference_length)
 
-    LIST_rec = tensor2list(result)
+    LIST_rec = tensor2list(result.to('cpu'))
     list2midi(LIST_rec, ofpath = os.path.join(base_path, cfg.inference.save_path, "test_rec.midi"))
 
 
