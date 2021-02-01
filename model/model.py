@@ -10,6 +10,7 @@ from model.core import Transformer
 class Baseline(pl.LightningModule):
     def __init__(self, cfg: DictConfig):
         super(Baseline, self).__init__()
+        self.save_hyperparameters()
         self.cfg = cfg
         self.loss = TemporalLoss(cfg)
         self.model = Transformer(cfg)
@@ -21,18 +22,14 @@ class Baseline(pl.LightningModule):
         x, target = batch
         logits = self.model(x)
         loss = self.loss(logits, target)
-        tensorboard_log = {
-            'train_loss': loss
-        }
-
-        return {'loss': loss, 'log': tensorboard_log}
+        self.log('train_loss', loss)
+        return loss
 
     def validation_step(self, batch, batch_idx):
         x, target = batch
         logits = self.model(x)
         loss = self.loss(logits, target)
         acc = get_accuracy(logits[0], target[0])
-
         return {
             'val_loss': loss,
             'val_acc': acc
@@ -41,19 +38,14 @@ class Baseline(pl.LightningModule):
     def validation_epoch_end(self, outputs):
         loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         acc = torch.stack([x['val_acc'] for x in outputs]).mean()
-        tensorboard_log = {
-            'val_loss': loss,
-            'val_acc': acc
-        }
-
-        return {'val_loss': loss, 'log': tensorboard_log}
+        self.log('val_loss', loss)
+        self.log('val_acc', acc)
     
     def test_step(self, batch, batch_idx):
         x, target = batch
         logits = self.model(x)
         loss = self.loss(logits, target)
         acc = get_accuracy(logits[0], target[0])
-
         return {
             'test_loss': loss,
             'test_acc': acc
@@ -62,12 +54,8 @@ class Baseline(pl.LightningModule):
     def test_epoch_end(self, outputs):
         loss = torch.stack([x['test_loss'] for x in outputs]).mean()
         acc = torch.stack([x['test_acc'] for x in outputs]).mean()
-        tensorboard_log = {
-            'test_loss': loss,
-            'test_acc': acc
-        }
-
-        return {'test_loss': loss, 'log': tensorboard_log}
+        self.log('test_loss', loss)
+        self.log('test_acc', acc)
 
     def configure_optimizers(self):
         if self.cfg.train.optim == 'adam':

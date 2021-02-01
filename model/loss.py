@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from omegaconf import DictConfig
 
-class TemporalLoss:
+class TemporalLoss(nn.Module):
     def __init__(self, cfg: DictConfig):
         super(TemporalLoss, self).__init__()
         self.cfg = cfg
@@ -14,10 +14,10 @@ class TemporalLoss:
         else:
             raise NotImplementedError
 
-    def get_loss(self, logits, target):
+    def forward(self, logits, target):
         logit_token, logit_time = logits
         target_token, target_time = target
-        return self.token_loss(logit_token, target_token) + self.time_loss(logit_time, target_time)
+        return self.token_loss(logit_token.transpose(1, 2), target_token) + self.time_loss(logit_time.transpose(1, 2), target_time)
 
 def get_accuracy(logits: torch.Tensor, target: torch.Tensor):
     return torch.sum(logits.argmax(dim=-1) == target) / target.shape[0]

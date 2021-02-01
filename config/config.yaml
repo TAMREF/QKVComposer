@@ -1,7 +1,9 @@
 model:
   d_ff: 2048
   d_hidden: 512
+  d_embed: 512
   dropout: 0.1
+  data_len: 2048
   n_head: 8
   num_layers: 6
   num_tokens: 385
@@ -17,7 +19,7 @@ log:
 data:
   num_workers: 32
   dataset_path: ''
-  data_len: 2048
+  max_len: 16384
 
 train:
   accumulate: 1
@@ -28,10 +30,10 @@ train:
   gpus: 1
   lr: 0.0003
   optim: 'adam'
-  parallel_calls: 32
   resume: ''
   save_top_k: 3
   steps: 100
+  time_loss_mode: 'one_hot'
   valid_split: 1024
 
 inference:
