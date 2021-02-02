@@ -32,7 +32,7 @@ class Transformer(nn.Module):
     def forward(self, batch):
         x, time = batch
         embed = self.embedding(x)
-        encode = self.temporal_encoding(embed, time)
+        encode = self.temporal_encoding(embed, time) if self.cfg.model.use_temporal_encoding else embed
         output = self.linear(self.transformer(encode))
         token, time = torch.split(output, [self.cfg.model.num_tokens, self.cfg.model.num_time_token], dim=-1)
         return token, time

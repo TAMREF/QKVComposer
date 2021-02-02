@@ -9,6 +9,7 @@ model:
   num_layers: 6
   num_tokens: 385
   padding_idx: 384
+  use_temporal_encoding: True
 
 log:
   checkpoint_dir: 'checkpoints'
