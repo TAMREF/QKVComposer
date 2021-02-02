@@ -18,7 +18,7 @@ log:
 
 data:
   datamidi_dir: 'dataset/midi'
-  dataset_dir: ''
+  dataset_path: ''
   make_note_tensor: False
   max_len: 16384
   notetensor_dir: 'dataset/note_tensor'
