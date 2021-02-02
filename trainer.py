@@ -6,7 +6,7 @@ from pytorch_lightning import Trainer, callbacks
 from pytorch_lightning import loggers as pl_loggers
 
 from model.model import Baseline
-from dataset.dataset import MidiDataModule
+from dataset.dataset_pt import MidiDataModule
 
 @hydra.main(config_name=os.path.join('config', 'config.yaml'))
 def main(cfg: DictConfig):
@@ -23,7 +23,7 @@ def main(cfg: DictConfig):
         save_top_k=cfg.train.save_top_k
     )
     trainer = Trainer(
-        accelerator=None if cfg.train.gpus == 0 else 'ddp',
+        accelerator=None if platform.system() == 'Windows' else 'ddp',
         accumulate_grad_batches=cfg.train.accumulate,
         auto_scale_batch_size=True,
         callbacks=[checkpoint_callback],
