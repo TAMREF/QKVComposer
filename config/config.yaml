@@ -17,11 +17,12 @@ log:
   version: 0
 
 data:
-  num_workers: 0
   datamidi_dir: 'dataset/midi'
-  max_len: 16384
+  dataset_dir: ''
   make_note_tensor: False
+  max_len: 16384
   notetensor_dir: 'dataset/note_tensor'
+  num_workers: 0
 
 train:
   accumulate: 1
@@ -39,7 +40,7 @@ train:
   valid_split: 1024
 
 inference:
-  sample: False
   length: 1
   path: ''
+  sample: False
   save_path: 'samples'
