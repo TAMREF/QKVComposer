@@ -5,7 +5,7 @@ from omegaconf.dictconfig import DictConfig
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset, random_split
 import torch
-from tqdm import tqdm
+from tqdm import tqdm_notebook
 
 from dataset.utils import MidiParser
 from pathlib import Path
@@ -66,16 +66,31 @@ class MidiDataset(Dataset):
         self.parser = MidiParser(cfg)
         if cfg.data.make_note_tensor:
             self.generate_note_tensor()
-        self.note_file_list = glob.glob(str(Path(hydra.utils.get_original_cwd())/self.cfg.data.notetensor_dir/'*.pt'))
+        self.note_file_list = glob.glob(os.path.join(
+            hydra.utils.get_original_cwd(),
+            self.cfg.data.notetensor_dir,
+            '*.pt'
+        ))
 
     def generate_note_tensor(self):
-        midi_file_list = glob.glob(str(Path(hydra.utils.get_original_cwd())/self.cfg.data.datamidi_dir/'*'/'*.[mM][iI][dD]'))
-        midi_file_list.extend(glob.glob(str(Path(hydra.utils.get_original_cwd())/self.cfg.data.datamidi_dir/'*'/'*.[mM][iI][dD][iI]')))
+        midi_file_list = glob.glob(os.path.join(
+            hydra.utils.get_original_cwd(),
+            self.cfg.data.datamidi_dir,
+            '**', '*.[mM][iI][dD]'
+        ))
+        midi_file_list.extend(glob.glob(os.path.join(
+            hydra.utils.get_original_cwd(),
+            self.cfg.data.datamidi_dir,
+            '**', '*.[mM][iI][dD][iI]'
+        )))
 
-        pbar = tqdm(enumerate(midi_file_list))
-        for idx, f in pbar:
+        for f in tqdm_notebook(midi_file_list):
             parsed_note_tensor = torch.tensor(self.parser.parse_midi(f), dtype = torch.long)
-            notetensor_path = Path(hydra.utils.get_original_cwd())/self.cfg.data.notetensor_dir/(str(Path(f).stem)+'.pt')
+            notetensor_path = os.path.join(
+                hydra.utils.get_original_cwd(),
+                self.cfg.data.notetensor_dir,
+                str(Path(f).stem) + '.pt'
+            )
             torch.save(parsed_note_tensor, notetensor_path)
 
     def __len__(self):
