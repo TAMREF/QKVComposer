@@ -39,7 +39,7 @@ train:
   save_top_k: 3
   steps: 100
   time_loss_mode: 'one_hot'
-  time_loss_mul: 0.0
+  time_loss_mul: 1.0
   valid_split: 1024
 
 inference:
