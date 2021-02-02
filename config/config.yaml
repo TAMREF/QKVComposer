@@ -1,9 +1,10 @@
 model:
-  d_ff: 128
-  d_hidden: 128
-  d_embed: 128
+  d_ff: 256
+  d_hidden: 256
+  d_embed: 256
   dropout: 0.1
-  data_len: 128
+  data_len: 256
+  num_time_token: 400
   n_head: 8
   num_layers: 6
   num_tokens: 385
@@ -20,23 +21,24 @@ data:
   datamidi_dir: 'dataset/midi'
   dataset_path: ''
   make_note_tensor: False
-  max_len: 16384
+  max_len: 1000000
   notetensor_dir: 'dataset/note_tensor'
   num_workers: 0
 
 train:
   accumulate: 1
-  batch_size: 2
+  batch_size: 32
   betas: [0.5, 0.9]
   epochs: 1500
   fast_dev_run: False
   gpus: 1
-  lr: 0.0003
+  lr: 0.001
   optim: 'adam'
   resume: ''
   save_top_k: 3
   steps: 100
   time_loss_mode: 'one_hot'
+  time_loss_mul: 0.0
   valid_split: 1024
 
 inference:

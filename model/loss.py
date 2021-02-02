@@ -17,7 +17,7 @@ class TemporalLoss(nn.Module):
     def forward(self, logits, target):
         logit_token, logit_time = logits
         target_token, target_time = target
-        return self.token_loss(logit_token.transpose(1, 2), target_token) + self.time_loss(logit_time.transpose(1, 2), target_time)
+        return self.token_loss(logit_token.transpose(1, 2), target_token) + self.time_loss(logit_time.transpose(1, 2), target_time) * self.cfg.train.time_loss_mul
 
 def get_accuracy(logits: torch.Tensor, target: torch.Tensor):
     return (logits.argmax(dim=-1) == target).type(torch.float32).mean()

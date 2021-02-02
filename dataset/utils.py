@@ -4,6 +4,7 @@ import pretty_midi as pm
 
 from numpy import random
 from omegaconf import DictConfig
+import torch
 
 NOTE_START = 0
 NOTE_END = 1
@@ -13,9 +14,23 @@ class MidiParser:
     def __init__(self, cfg: DictConfig):
         super(MidiParser, self).__init__()
         self.cfg = cfg
-        self.data_len = cfg.data.max_len + 1
+        self.data_len = cfg.model.data_len + 1
     
     def parse_midi(self, path: str):
+        time_list, token_list = self.parse_full_midi(path)
+        if len(token_list) <= self.data_len:
+            token_list += [self.cfg.model.padding_idx] * (self.data_len - len(token_list))
+            time_list += [0] * (self.data_len - len(time_list))
+        else:
+            random_split = random.randint(0, len(token_list) - self.data_len)
+            token_list = token_list[random_split:random_split + self.data_len]
+            time_list = time_list[random_split:random_split + self.data_len]
+
+        token_list = np.array(token_list, dtype=np.int64)
+        time_list = np.array(time_list, dtype=np.int64)
+
+        return (token_list[:-1], time_list[:-1]), (token_list[1:], np.maximum(time_list[1:] - time_list[:-1], 0))
+    def parse_full_midi(self, path:str):
         midi = pm.PrettyMIDI(midi_file=path)
         midi.remove_invalid_notes()
         event_list = []
@@ -31,7 +46,7 @@ class MidiParser:
 
         event_list.sort()
         token_list = []
-        time_list = [round(event[0]) for event in event_list]
+        time_list = [round(event[0]*100) for event in event_list]
 
         for event in event_list:
             if event[1] == NOTE_START:
@@ -42,19 +57,16 @@ class MidiParser:
                 token_list.append(event[2] + 256)
             else:
                 raise IndexError
+        return time_list, token_list
 
-        if len(token_list) <= self.data_len:
-            token_list += [self.cfg.model.padding_idx] * (self.data_len - len(token_list))
-            time_list += [0] * (self.data_len - len(time_list))
-        else:
-            random_split = random.randint(0, len(token_list) - self.data_len)
-            token_list = token_list[random_split:random_split + self.data_len]
-            time_list = time_list[random_split:random_split + self.data_len]
+    def random_choice_from_notetensor(self, note_tensor):
+        time_tensor = note_tensor[0]
+        token_tensor = note_tensor[1]
 
-        token_list = np.array(token_list, dtype=np.int64)
-        time_list = np.array(time_list, dtype=np.int64)
-
-        return (token_list[:-1], time_list[:-1]), (token_list[1:], np.maximum(time_list[1:] - time_list[:-1], 0))
+        random_split = random.randint(0, token_tensor.shape[0] - self.data_len)
+        token_tensor = token_tensor[random_split:random_split + self.data_len]
+        time_tensor = time_tensor[random_split:random_split + self.data_len]
+        return (token_tensor[:-1], time_tensor[:-1]), (token_tensor[1:], torch.relu(time_tensor[1:] - time_tensor[:-1]))
 
     def recon_midi(self, token_list, time_list, name):
         velocity = 20

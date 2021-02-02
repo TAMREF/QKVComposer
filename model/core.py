@@ -26,7 +26,7 @@ class Transformer(nn.Module):
         )
         self.linear = nn.Linear(
             in_features=cfg.model.d_hidden,
-            out_features=cfg.model.num_tokens + cfg.model.data_len
+            out_features=cfg.model.num_tokens + cfg.model.num_time_token
         )
 
     def forward(self, batch):
@@ -34,7 +34,7 @@ class Transformer(nn.Module):
         embed = self.embedding(x)
         encode = self.temporal_encoding(embed, time)
         output = self.linear(self.transformer(encode))
-        token, time = torch.split(output, [self.cfg.model.num_tokens, self.cfg.model.data_len], dim=-1)
+        token, time = torch.split(output, [self.cfg.model.num_tokens, self.cfg.model.num_time_token], dim=-1)
         return token, time
 
 class TemporalEncoding(nn.Module):

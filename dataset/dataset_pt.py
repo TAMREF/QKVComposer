@@ -5,7 +5,7 @@ from omegaconf.dictconfig import DictConfig
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset, random_split
 import torch
-from tqdm import tqdm_notebook
+from tqdm import tqdm
 
 from dataset.utils import MidiParser
 from pathlib import Path
@@ -71,21 +71,27 @@ class MidiDataset(Dataset):
             self.cfg.data.notetensor_dir,
             '*.pt'
         ))
-
+        def filter_note_tensor(f):
+            note_tensor = torch.load(f)
+            time = note_tensor[0]
+            max_time_gap = torch.max(time[1:]-time[:-1]).item()
+            return note_tensor.size()[-1] >= cfg.model.data_len+1 and max_time_gap < self.cfg.model.num_time_token
+        self.note_file_list = list(filter(filter_note_tensor, self.note_file_list))
+            
     def generate_note_tensor(self):
         midi_file_list = glob.glob(os.path.join(
             hydra.utils.get_original_cwd(),
             self.cfg.data.datamidi_dir,
-            '**', '*.[mM][iI][dD]'
+            '*', '*.[mM][iI][dD]'
         ))
         midi_file_list.extend(glob.glob(os.path.join(
             hydra.utils.get_original_cwd(),
             self.cfg.data.datamidi_dir,
-            '**', '*.[mM][iI][dD][iI]'
+            '*', '*.[mM][iI][dD][iI]'
         )))
 
-        for f in tqdm_notebook(midi_file_list):
-            parsed_note_tensor = torch.tensor(self.parser.parse_midi(f), dtype = torch.long)
+        for f in tqdm(midi_file_list):
+            parsed_note_tensor = torch.tensor(self.parser.parse_full_midi(f), dtype = torch.long)
             notetensor_path = os.path.join(
                 hydra.utils.get_original_cwd(),
                 self.cfg.data.notetensor_dir,
@@ -97,5 +103,5 @@ class MidiDataset(Dataset):
         return len(self.note_file_list)
 
     def __getitem__(self, index):
-        parsed_data = torch.load(self.note_file_list[index])
-        return (parsed_data[0][0], parsed_data[0][1]), (parsed_data[1][0], parsed_data[1][1])
+        note_tensor = torch.load(self.note_file_list[index])
+        return self.parser.random_choice_from_notetensor(note_tensor)
