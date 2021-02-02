@@ -20,4 +20,4 @@ class TemporalLoss(nn.Module):
         return self.token_loss(logit_token.transpose(1, 2), target_token) + self.time_loss(logit_time.transpose(1, 2), target_time)
 
 def get_accuracy(logits: torch.Tensor, target: torch.Tensor):
-    return torch.sum(logits.argmax(dim=-1) == target) / target.shape[0]
+    return (logits.argmax(dim=-1) == target).type(torch.float32).mean()
