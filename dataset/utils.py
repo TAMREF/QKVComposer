@@ -5,6 +5,7 @@ import pretty_midi as pm
 from numpy import random
 from omegaconf import DictConfig
 import torch
+import hydra
 
 NOTE_START = 0
 NOTE_END = 1
@@ -87,4 +88,4 @@ class MidiParser:
                 break
 
         midi.instruments.append(inst)
-        midi.write(filename=os.path.join(self.cfg.inference.save_path, name))
+        midi.write(filename=os.path.join(hydra.utils.get_original_cwd(), self.cfg.inference.save_path, name))

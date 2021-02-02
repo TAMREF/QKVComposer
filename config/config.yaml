@@ -3,9 +3,9 @@ model:
   d_hidden: 256
   d_embed: 256
   dropout: 0.1
-  data_len: 256
+  data_len: 1024
   num_time_token: 400
-  n_head: 8
+  n_head: 4
   num_layers: 6
   num_tokens: 385
   padding_idx: 384
@@ -28,14 +28,14 @@ data:
 
 train:
   accumulate: 1
-  batch_size: 32
+  batch_size: 16
   betas: [0.5, 0.9]
   epochs: 1500
   fast_dev_run: False
   gpus: 1
-  lr: 0.001
+  lr: 0.0003
   optim: 'adam'
-  resume: ''
+  resume: 'outputs\2021-02-03\02-09-40\checkpoints\ckpt-epoch=0063-val_loss=6.2563.ckpt'
   save_top_k: 3
   steps: 100
   time_loss_mode: 'one_hot'
@@ -43,7 +43,9 @@ train:
   valid_split: 1024
 
 inference:
-  length: 1
-  path: ''
+  length: 3000
+  condition_pt:
+  checkpoint_path: 'outputs\2021-02-03\02-09-40\checkpoints\ckpt-epoch=0063-val_loss=6.2563.ckpt'
   sample: False
   save_path: 'samples'
+  sample_mode: 'OneHotCategorical'
