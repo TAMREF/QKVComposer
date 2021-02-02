@@ -47,7 +47,7 @@ class RelativeGlobalAttention(torch.nn.Module):
     from Music Transformer ( Huang et al, 2018 )
     [paper link](https://arxiv.org/pdf/1809.04281.pdf)
     """
-    def __init__(self, h=4, d=256, add_emb=False, max_seq=2048, **kwargs):
+    def __init__(self, h=4, d=256, add_emb=False, max_seq=2048, use_relative_positional_encoding = True, **kwargs):
         super().__init__()
         self.len_k = None
         self.max_seq = max_seq
@@ -59,6 +59,7 @@ class RelativeGlobalAttention(torch.nn.Module):
         self.Wv = torch.nn.Linear(self.d, self.d)
         self.fc = torch.nn.Linear(d, d)
         self.additional = add_emb
+        self.use_relative_positional_encoding = use_relative_positional_encoding
         self.E = torch.nn.Parameter(torch.randn([self.max_seq, int(self.dh)]))
         if self.additional:
             self.Radd = None
@@ -90,14 +91,17 @@ class RelativeGlobalAttention(torch.nn.Module):
         self.len_k = k.size(2)
         self.len_q = q.size(2)
 
-        E = self._get_left_embedding(self.len_q, self.len_k).to(q.device)
-        QE = torch.matmul(q, E.t())
-        QE = self._qe_masking(QE)
-        Srel = self._skewing(QE)
-
         Kt = k.permute(0, 1, 3, 2)
         QKt = torch.matmul(q, Kt)
-        logits = QKt + Srel
+        logits = QKt
+
+        if self.use_relative_positional_encoding:
+            E = self._get_left_embedding(self.len_q, self.len_k).to(q.device)
+            QE = torch.matmul(q, E.t())
+            QE = self._qe_masking(QE)
+            Srel = self._skewing(QE)
+            logits+=Srel
+
         logits = logits / math.sqrt(self.dh)
 
         if mask is not None:
@@ -138,11 +142,12 @@ class RelativeGlobalAttention(torch.nn.Module):
 
 
 class EncoderLayer(torch.nn.Module):
-    def __init__(self, d_model, rate=0.1, h=16, additional=False, max_seq=2048):
+    def __init__(self, d_model, rate=0.1, h=16, additional=False, max_seq=2048, use_relative_positional_encoding = True):
         super(EncoderLayer, self).__init__()
 
         self.d_model = d_model
-        self.rga = RelativeGlobalAttention(h=h, d=d_model, max_seq=max_seq, add_emb=additional)
+        self.use_relative_positional_encoding = use_relative_positional_encoding
+        self.rga = RelativeGlobalAttention(h=h, d=d_model, max_seq=max_seq, add_emb=additional, use_relative_positional_encoding=use_relative_positional_encoding)
 
         self.FFN_pre = torch.nn.Linear(self.d_model, self.d_model//2)
         self.FFN_suf = torch.nn.Linear(self.d_model//2, self.d_model)
@@ -209,17 +214,19 @@ class DecoderLayer(torch.nn.Module):
 
 
 class Encoder(torch.nn.Module):
-    def __init__(self, num_layers, d_model, input_vocab_size, rate=0.1, max_len=None):
+    def __init__(self, num_layers, d_model, input_vocab_size, rate=0.1, max_len=None, use_relative_positional_encoding = True, use_positional_encoding = True):
         super(Encoder, self).__init__()
 
         self.d_model = d_model
         self.num_layers = num_layers
 
         self.embedding = torch.nn.Embedding(num_embeddings=input_vocab_size, embedding_dim=d_model)
+        self.use_positional_encoding = use_positional_encoding
+        self.use_relative_positional_encoding = use_relative_positional_encoding
         self.pos_encoding = DynamicPositionEmbedding(self.d_model, max_seq=max_len)
 
         self.enc_layers = torch.nn.ModuleList(
-            [EncoderLayer(d_model, rate, h=self.d_model // 64, additional=False, max_seq=max_len)
+            [EncoderLayer(d_model, rate, h=self.d_model // 64, additional=False, max_seq=max_len, use_relative_positional_encoding = use_relative_positional_encoding)
              for _ in range(num_layers)])
         self.dropout = torch.nn.Dropout(rate)
 
@@ -227,7 +234,8 @@ class Encoder(torch.nn.Module):
         weights = []
         # adding embedding and position encoding.
         x = self.embedding(x.to(torch.long))  # (batch_size, input_seq_len, d_model)
-        x = self.pos_encoding(x)
+        if self.use_positional_encoding:
+            x = self.pos_encoding(x)
         x = self.dropout(x)
         for i in range(self.num_layers):
             x, w = self.enc_layers[i](x, mask)

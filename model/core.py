@@ -17,7 +17,9 @@ class CoreModel(torch.nn.Module):
         self.cfg = cfg
         self.Decoder = Encoder(
             num_layers=cfg.model.num_layer, d_model=cfg.model.embedding_dim,
-            input_vocab_size=cfg.model.vocab_size, rate=cfg.model.dropout, max_len=cfg.model.max_seq)
+            input_vocab_size=cfg.model.vocab_size, rate=cfg.model.dropout,
+            max_len=cfg.model.max_seq, use_positional_encoding = cfg.model.use_positional_encoding,
+            use_relative_positional_encoding = cfg.model.use_relative_positional_encoding)
         self.fc = torch.nn.Linear(cfg.model.embedding_dim, cfg.model.vocab_size)
     def forward(self, x, length=None, writer=None):
         """if self.cfg.train.sample:

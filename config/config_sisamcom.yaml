@@ -1,7 +1,9 @@
 model:
-  num_layer: 10
-  embedding_dim: 512
-  max_seq: 1024
+  use_positional_encoding: True
+  use_relative_positional_encoding: True
+  num_layer: 6
+  embedding_dim: 128
+  max_seq: 128
   vocab_size: 484
   dropout: 0.1
 
