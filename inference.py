@@ -16,6 +16,7 @@ def generate(cfg, model, prior_token: torch.Tensor, prior_time:torch.Tensor, len
     for _ in tqdm(range(length)):
         if decode_token_array.size(1) > cfg.model.data_len: 
             decode_token_array = decode_token_array[:, 1:]
+            decode_time_array = decode_time_array[:, 1:]
         
         token, timegap = model((decode_token_array, decode_time_array))
         token = token.softmax(-1)

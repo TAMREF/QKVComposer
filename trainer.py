@@ -32,7 +32,7 @@ def main(cfg: DictConfig):
         gpus=None if cfg.train.gpus == 0 else cfg.train.gpus,
         log_every_n_steps=1,
         logger=logger,
-        resume_from_checkpoint=None if cfg.train.resume is '' else os.path.join(hydra.utils.get_original_cwd(), cfg.train.resume),
+        resume_from_checkpoint=None if cfg.train.resume is None else os.path.join(hydra.utils.get_original_cwd(), cfg.train.resume),
         terminate_on_nan=True,
         weights_save_path=cfg.log.checkpoint_dir
     )

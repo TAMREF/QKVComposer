@@ -3,6 +3,32 @@ import numpy as np
 from torch import nn
 from omegaconf import DictConfig
 
+class JBob(nn.Module):
+    def __init__(self, cfg:DictConfig):
+        super(JBob, self).__init__()
+        self.cfg = cfg
+        self.embedding = nn.Embedding(
+            num_embeddings=cfg.model.num_tokens,
+            embedding_dim=cfg.model.d_embed,
+            padding_idx=cfg.model.padding_idx
+        )
+        self.l = cfg.model.data_len*cfg.model.d_embed
+        self.out_len = cfg.model.num_tokens+cfg.model.num_time_token
+        self.activation = torch.relu
+        self.linear1 = nn.Linear(self.l, 512)
+        self.bn1 = nn.BatchNorm1d(512)
+        self.linear2 = nn.Linear(512, 512)
+        self.bn2 = nn.BatchNorm1d(512)
+        self.linear3 = nn.Linear(512, cfg.model.data_len*self.out_len)
+    def forward(self, batch):
+        batch = batch[0]
+        batch = self.embedding(batch).reshape(batch.shape[0], -1)
+        output = self.linear3(self.bn2(self.activation(self.linear2(self.bn1((self.activation(self.linear1(batch)))))))).reshape(batch.shape[0], -1, self.out_len)
+        token, time = torch.split(output, [self.cfg.model.num_tokens, self.cfg.model.num_time_token], dim=-1)
+        return token, time
+
+
+
 class Transformer(nn.Module):
     def __init__(self, cfg: DictConfig):
         super(Transformer, self).__init__()

@@ -5,7 +5,7 @@ import pytorch_lightning as pl
 from torch import optim
 
 from model.loss import TemporalLoss, get_accuracy
-from model.core import Transformer
+from model.core import Transformer, JBob
 
 class Baseline(pl.LightningModule):
     def __init__(self, cfg: DictConfig):
@@ -22,7 +22,11 @@ class Baseline(pl.LightningModule):
         x, target = batch
         logits = self.model(x)
         loss = self.loss(logits, target)
+        note_acc = get_accuracy(logits[0], target[0])
+        time_acc = get_accuracy(logits[1], target[1])
         self.log('train_loss', loss)
+        self.log('train_note_acc', note_acc)
+        self.log('train_time_acc', time_acc)
         return loss
 
     def validation_step(self, batch, batch_idx):
