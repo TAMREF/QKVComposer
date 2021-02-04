@@ -50,6 +50,7 @@ class Transformer(nn.Module):
             num_layers=cfg.model.num_layers,
             norm=nn.LayerNorm(cfg.model.d_hidden)
         )
+        self.mask = nn.Transformer().generate_square_subsequent_mask(sz=self.cfg.model.data_len)
         self.linear = nn.Linear(
             in_features=cfg.model.d_hidden,
             out_features=cfg.model.num_tokens + cfg.model.num_time_token
@@ -59,7 +60,7 @@ class Transformer(nn.Module):
         x, time = batch
         embed = self.embedding(x)
         encode = self.temporal_encoding(embed, time) if self.cfg.model.use_temporal_encoding else embed
-        output = self.linear(self.transformer(encode))
+        output = self.linear(self.transformer(encode, src_key_padding_mask=self.mask))
         token, time = torch.split(output, [self.cfg.model.num_tokens, self.cfg.model.num_time_token], dim=-1)
         return token, time
 
