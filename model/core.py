@@ -18,8 +18,8 @@ class CoreModel(torch.nn.Module):
         self.Decoder = Encoder(
             num_layers=cfg.model.num_layer, d_model=cfg.model.embedding_dim,
             input_vocab_size=cfg.model.vocab_size, rate=cfg.model.dropout,
-            max_len=cfg.model.max_seq, use_positional_encoding = cfg.model.use_positional_encoding,
-            use_relative_positional_encoding = cfg.model.use_relative_positional_encoding)
+            max_len=cfg.model.max_seq, use_positional_encoding = True,
+            use_relative_positional_encoding = True)
         self.fc = torch.nn.Linear(cfg.model.embedding_dim, cfg.model.vocab_size)
     def forward(self, x, length=None, writer=None):
         """if self.cfg.train.sample:
@@ -40,8 +40,8 @@ class CoreModel(torch.nn.Module):
         for _ in Bar('generating').iter(range(length)):
             if decode_array.size(1) > self.cfg.model.max_seq: 
                 decode_array = decode_array[:, 1:]
-            
-            result, _ = self.Decoder(decode_array, None)
+            seq_mask = utils.get_mask_tensor(decode_array.shape[-1]).to(decode_array.device)
+            result, _ = self.Decoder(decode_array, seq_mask)
             result = self.fc(result)
             result = result.softmax(-1)
             
