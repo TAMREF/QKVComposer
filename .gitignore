@@ -138,6 +138,8 @@ outputs/*
 #midi
 *midi
 *mid
+#unignore samples
+!samples/*
 
 #pickle
 *pickle
