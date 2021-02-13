@@ -20,13 +20,13 @@ def generate(cfg, model, prior_token: torch.Tensor, prior_time:torch.Tensor, len
         
         token, timegap = model((decode_token_array, decode_time_array))
         token = token.softmax(-1)
-        timegap = timegap.softmax(-1)
         
         #should change if batchsize != 0
-        if timegap[:, -1, 0] < cfg.inference.zero_threshold:
+        if timegap.softmax(-1)[:, -1, 0] < cfg.inference.zero_threshold:
             timegap = torch.tensor([[0]]).to(token.device)
         else:
-            timegap[:, -1, 0] = -1e-9
+            timegap[:, -1, 0] = -1e9
+            timegap = timegap.softmax(-1)
             if cfg.inference.sample_mode == 'OneHotCategorical':
                 pdf_time = dist.OneHotCategorical(probs=timegap[:, -1])
                 timegap = pdf_time.sample().argmax(-1).unsqueeze(-1)
