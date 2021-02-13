@@ -59,14 +59,13 @@ class Transformer(nn.Module):
 
     def forward(self, batch):
         x, time = batch
-        if x.shape[1] != self.mask.shape[0]:
-            self.mask = nn.Transformer().generate_square_subsequent_mask(sz=x.shape[1]).to(self.mask.device)
+        mask = self.mask[:x.shape[1], :x.shape[1]]
         embed = self.embedding(x)
         #batch first
         encode = self.temporal_encoding(embed, time) if self.cfg.model.use_temporal_encoding else embed
         #batch second to use fucking nn.Transformer implementation
         encode = encode.permute(1,0,2).contiguous()
-        output = self.linear(self.transformer(encode, mask=self.mask))
+        output = self.linear(self.transformer(encode, mask=mask))
         #batch first
         output = output.permute(1,0,2).contiguous()
         token, time = torch.split(output, [self.cfg.model.num_tokens, self.cfg.model.num_time_token], dim=-1)
