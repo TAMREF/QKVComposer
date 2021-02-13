@@ -45,7 +45,8 @@ train:
 inference:
   length: 1000
   condition_pt:
-  checkpoint_path: 'outputs\2021-02-11\01-07-28\checkpoints\ckpt-epoch=0021-val_loss=5.5860.ckpt'
+  checkpoint_path: 'outputs\2021-02-13\23-13-07\checkpoints\ckpt-epoch=0000-val_loss=7.4977.ckpt'
   sample: False
   save_path: 'samples'
   sample_mode: 'OneHotCategorical'
+  zero_threshold: 0.5
