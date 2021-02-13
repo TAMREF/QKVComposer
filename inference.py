@@ -22,7 +22,7 @@ def generate(cfg, model, prior_token: torch.Tensor, prior_time:torch.Tensor, len
         token = token.softmax(-1)
         
         #should change if batchsize != 0
-        if timegap.softmax(-1)[:, -1, 0] < cfg.inference.zero_threshold:
+        if timegap.softmax(-1)[:, -1, 0] > cfg.inference.zero_threshold:
             timegap = torch.tensor([[0]]).to(token.device)
         else:
             timegap[:, -1, 0] = -1e9
