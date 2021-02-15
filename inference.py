@@ -14,9 +14,10 @@ def generate(cfg, model, prior_token: torch.Tensor, prior_time:torch.Tensor, len
     decode_time_array = prior_time
     result_time_array = prior_time
     for _ in tqdm(range(length)):
-        if decode_token_array.size(1) > cfg.model.data_len: 
-            decode_token_array = decode_token_array[:, 1:]
-            decode_time_array = decode_time_array[:, 1:]
+        if decode_token_array.size(1) > cfg.model.data_len:
+            s_idx = decode_token_array.size(1) - cfg.model.data_len
+            decode_token_array = decode_token_array[:, s_idx:]
+            decode_time_array = decode_time_array[:, s_idx:]
         
         token, timegap = model((decode_token_array, decode_time_array))
         token = token.softmax(-1)
@@ -61,9 +62,9 @@ def main(cfg: DictConfig):
         prior_token = torch.tensor([[200]]).to(device)
         prior_time = torch.tensor([[5]]).to(device)
     else:
-        pass
-        #condition_pt = torch.load(os.path.join(hydra.utils.get_original_cwd(), cfg.inference.condition_pt))
-        #inputs = condition_pt[:cfg.inference.condition_length].unsqueeze(0).numpy()
+        condition_pt = torch.load(os.path.join(hydra.utils.get_original_cwd(), cfg.inference.condition_pt))
+        prior_time = condition_pt[0][:cfg.inference.condition_length].unsqueeze(0).to(device)
+        prior_token = condition_pt[1][:cfg.inference.condition_length].unsqueeze(0).to(device)
     
     result_token_array, result_time_array = generate(cfg, model, prior_token, prior_time, length=cfg.inference.length)
     parser.recon_midi(result_token_array.to('cpu').tolist(), result_time_array.to('cpu').tolist(), name = 'temporal_encoding.mid')
