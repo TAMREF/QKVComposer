@@ -43,9 +43,10 @@ train:
   valid_split: 1024
 
 inference:
-  length: 1000
-  condition_pt:
-  checkpoint_path: #'outputs/2021-02-11/01-44-49/checkpoints/ckpt-epoch=0947-val_loss=4.0835.ckpt'
+  length: 3000
+  condition_pt: 'dataset/note_tensor/MIDI-Unprocessed_01_R1_2009_01-04_ORIG_MID--AUDIO_01_R1_2009_01_R1_2009_01_WAV.pt'
+  condition_length: 100
+  checkpoint_path: 'outputs/2021-02-11/01-44-49/checkpoints/ckpt-epoch=0968-val_loss=4.0847.ckpt'
   sample: False
   save_path: 'samples'
   sample_mode: 'OneHotCategorical'
