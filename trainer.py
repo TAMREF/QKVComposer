@@ -23,8 +23,9 @@ def main(cfg: DictConfig):
         save_top_k=cfg.train.save_top_k
     )
     trainer = Trainer(
-        accelerator=None if platform.system() == 'Windows' else 'ddp',
+        accelerator=None, #if platform.system() == 'Windows' else 'ddp',
         accumulate_grad_batches=cfg.train.accumulate,
+        max_epochs=cfg.train.epochs,
         auto_scale_batch_size=True,
         callbacks=[checkpoint_callback],
         default_root_dir=cfg.log.log_dir,
