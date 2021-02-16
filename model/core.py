@@ -76,7 +76,8 @@ class TemporalEncoding(nn.Module):
         super(TemporalEncoding, self).__init__()
         self.cfg = cfg
         self.embed = cfg.model.d_embed
-        position = np.arange(0, cfg.data.max_len)[:, np.newaxis]
+        #sinusoid_const added 
+        position = np.arange(0, cfg.data.max_len)[:, np.newaxis] * cfg.model.sinusoid_const
         div_term = np.exp(np.arange(0, self.embed, 2) * -np.log(10000) / self.embed)
         sinusoids = np.stack([np.sin(position * div_term), np.cos(position * div_term)], axis=-1).astype(np.float32)
         embeddings = torch.from_numpy(sinusoids.reshape(cfg.data.max_len, -1))

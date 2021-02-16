@@ -4,10 +4,13 @@ from omegaconf import DictConfig
 
 class TimeZeroLoss(nn.Module):
     def __init__(self, cfg: DictConfig):
+        super(TimeZeroLoss, self).__init__()
         self.cfg = cfg
+        self.zero_criterian = nn.BCEWithLogitsLoss()
+        self.time_criterian = nn.CrossEntropyLoss()
     def forward(self, logit_time, target_time):
-        return nn.BCELoss(logit_time[:, 0], target_time == 0)\
-        +nn.CrossEntropyLoss(logit_time, target_time)
+        return self.zero_criterian(logit_time[:, 0], (target_time == 0).type(torch.float))\
+        +self.time_criterian(logit_time, target_time)
 
 class TemporalLoss(nn.Module):
     def __init__(self, cfg: DictConfig):
@@ -19,7 +22,7 @@ class TemporalLoss(nn.Module):
         elif cfg.train.time_loss_mode == 'linear':
             self.time_loss = nn.L1Loss()
         elif cfg.train.time_loss_mode == 'time_zero':
-            self.time_loss = TimeZeroLoss(cfg)
+            self.time_loss = TimeZeroLoss(cfg).forward
         else:
             raise NotImplementedError
 
