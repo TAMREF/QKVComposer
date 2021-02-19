@@ -9,8 +9,12 @@ class TimeZeroLoss(nn.Module):
         self.zero_criterian = nn.BCEWithLogitsLoss()
         self.time_criterian = nn.CrossEntropyLoss()
     def forward(self, logit_time, target_time):
-        return self.zero_criterian(logit_time[:, 0], (target_time == 0).type(torch.float))\
-        +self.time_criterian(logit_time, target_time)
+        zero_loss = self.zero_criterian(logit_time[:, 0], (target_time == 0).type(torch.float))\
+        #check time_criterian plz
+        logit_time = logit_time.contiguous().view(-1 ,self.cfg.model.num_time_token)
+        target_time = target_time.contiguous().view(-1)
+        time_loss = self.time_criterian(logit_time[target_time != 0, 1:], target_time[target_time != 0] - 1)
+        return zero_loss + time_loss
 
 class TemporalLoss(nn.Module):
     def __init__(self, cfg: DictConfig):

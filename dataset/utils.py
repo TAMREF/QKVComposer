@@ -7,9 +7,9 @@ from omegaconf import DictConfig
 import torch
 import hydra
 
-NOTE_START = 0
-NOTE_END = 1
-VELOCITY_CHANGE = 2
+VELOCITY_CHANGE = 0
+NOTE_START = 1
+NOTE_END = 2
 
 class MidiParser:
     def __init__(self, cfg: DictConfig):
@@ -31,6 +31,21 @@ class MidiParser:
         time_list = np.array(time_list, dtype=np.int64)
 
         return (token_list[:-1], time_list[:-1]), (token_list[1:], np.maximum(time_list[1:] - time_list[:-1], 0))
+    
+    def get_token_list(self, event_list):
+        token_list = []
+        for event in event_list:
+            if event[1] == VELOCITY_CHANGE:
+                token_list.append(event[2])
+            elif event[1] == NOTE_START:
+                token_list.append(event[2] + 128)
+            elif event[1] == NOTE_END:
+                token_list.append(event[2] + 256)
+            else:
+                raise IndexError
+        return token_list
+
+
     def parse_full_midi(self, path:str):
         midi = pm.PrettyMIDI(midi_file=path)
         midi.remove_invalid_notes()
@@ -46,23 +61,14 @@ class MidiParser:
                 event_list.append((note.start, VELOCITY_CHANGE, note.velocity))
 
         event_list.sort()
-        token_list = []
+        #1 idx shifts for 10ms interval
         time_list = [round(event[0]*100) for event in event_list]
-
-        for event in event_list:
-            if event[1] == NOTE_START:
-                token_list.append(event[2])
-            elif event[1] == NOTE_END:
-                token_list.append(event[2] + 128)
-            elif event[1] == VELOCITY_CHANGE:
-                token_list.append(event[2] + 256)
-            else:
-                raise IndexError
+        token_list = self.get_token_list(event_list)
         return time_list, token_list
 
-    def random_choice_from_notetensor(self, note_tensor):
-        time_tensor = note_tensor[0]
-        token_tensor = note_tensor[1]
+    def random_choice_from_notetensor(self, data_tensor):
+        time_tensor = data_tensor[0]
+        token_tensor = data_tensor[1]
 
         random_split = random.randint(0, token_tensor.shape[0] - self.data_len)
         token_tensor = token_tensor[random_split:random_split + self.data_len]
@@ -70,7 +76,7 @@ class MidiParser:
         return (token_tensor[:-1], time_tensor[:-1]), (token_tensor[1:], torch.relu(time_tensor[1:] - time_tensor[:-1]))
 
     def recon_midi(self, token_list, time_list, name):
-        velocity = 20
+        velocity = 80
         start_times = [0] * 128
 
         midi = pm.PrettyMIDI(midi_file=None)
@@ -78,12 +84,12 @@ class MidiParser:
 
         for token, time in zip(token_list, time_list):
             if 0 <= token < 128:
-                start_times[token] = time / 100
+                velocity = token
             elif 128 <= token < 256:
-                pitch = token - 128
-                inst.notes.append(pm.Note(velocity, pitch, start_times[pitch], time / 100))
+                start_times[token-128] = time / 100
             elif 256 <= token < 384:
-                velocity = token - 256
+                pitch = token - 256
+                inst.notes.append(pm.Note(velocity, pitch, start_times[pitch], time / 100))
             else:
                 break
 

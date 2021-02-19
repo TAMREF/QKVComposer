@@ -64,44 +64,69 @@ class MidiDataset(Dataset):
         super(MidiDataset, self).__init__()
         self.cfg = cfg
         self.parser = MidiParser(cfg)
-        if cfg.data.make_note_tensor:
+        if cfg.data.make_data_tensor:
             self.generate_note_tensor()
-        self.note_file_list = glob.glob(os.path.join(
+        self.data_file_list = glob.glob(os.path.join(
             hydra.utils.get_original_cwd(),
-            self.cfg.data.notetensor_dir,
+            self.cfg.data.datatensor_dir,
             '*.pt'
         ))
-        def filter_note_tensor(f):
-            note_tensor = torch.load(f)
-            time = note_tensor[0]
+        def filter_data_tensor(f):
+            time_token_tensor = torch.load(f)
+            time = time_token_tensor[0]
             max_time_gap = torch.max(time[1:]-time[:-1]).item()
-            return note_tensor.size()[-1] >= cfg.model.data_len+1 and max_time_gap < self.cfg.model.num_time_token
-        self.note_file_list = list(filter(filter_note_tensor, self.note_file_list))
+            if max_time_gap >= self.cfg.model.num_time_token:
+                return False
+
+            #바꿀 수 있다면 pad token 이용하는 것으로 바꿔주세요
+            if self.cfg.data.datamode=='time_token':
+                return time_token_tensor.size()[-1] >= cfg.model.data_len + 1
+            elif self.cfg.data.datamode=='time_note_vel':
+                return torch.sum(time_token_tensor[1] >= 128).cpu().item() >= cfg.model.data_len + 1
+            else:
+                raise Exception('datamode is invalid')
+        self.data_file_list = list(filter(filter_data_tensor, self.data_file_list))
             
     def generate_note_tensor(self):
-        midi_file_list = glob.glob(os.path.join(
-            hydra.utils.get_original_cwd(),
-            self.cfg.data.datamidi_dir,
-            '*', '*.[mM][iI][dD]'
-        ))
-        midi_file_list.extend(glob.glob(os.path.join(
-            hydra.utils.get_original_cwd(),
-            self.cfg.data.datamidi_dir,
-            '*', '*.[mM][iI][dD][iI]'
-        )))
+        midi_file_list = []
+        for i in range(1, 10):
+            sub_folder = os.path.join(*(["**"]*i))
+            midi_file_list.extend(glob.glob(os.path.join(
+                hydra.utils.get_original_cwd(),
+                self.cfg.data.datamidi_dir,
+                sub_folder, '*.[mM][iI][dD]'
+            )))
+            midi_file_list.extend(glob.glob(os.path.join(
+                hydra.utils.get_original_cwd(),
+                self.cfg.data.datamidi_dir,
+                sub_folder, '*.[mM][iI][dD][iI]'
+            )))
 
         for f in tqdm(midi_file_list):
-            parsed_note_tensor = torch.tensor(self.parser.parse_full_midi(f), dtype = torch.long)
-            notetensor_path = os.path.join(
+            time_list, token_list = self.parser.parse_full_midi(f)
+            parsed_time_token_tensor = torch.tensor((time_list, token_list), dtype = torch.long)
+            time_token_tensor_path = os.path.join(
                 hydra.utils.get_original_cwd(),
-                self.cfg.data.notetensor_dir,
-                str(Path(f).stem) + '.pt'
+                self.cfg.data.datatensor_dir,
+                str(Path(f).stem) + "time_token_tensor" + '.pt'
             )
-            torch.save(parsed_note_tensor, notetensor_path)
+            torch.save(parsed_time_token_tensor, time_token_tensor_path)
 
     def __len__(self):
-        return len(self.note_file_list)
+        return len(self.data_file_list)
 
     def __getitem__(self, index):
-        note_tensor = torch.load(self.note_file_list[index])
-        return self.parser.random_choice_from_notetensor(note_tensor)
+        time_token_tensor = torch.load(self.data_file_list[index])
+        time_tensor = time_token_tensor[0]
+        token_tensor = time_token_tensor[1]
+        if self.cfg.data.datamode == 'time_token':
+            return self.parser.random_choice_from_notetensor(time_token_tensor)
+        elif self.cfg.data.datamode == 'time_note_vel':
+
+            indices = time_token_tensor[1] >= 128
+
+            time_tensor = time_tensor[indices]
+            token_tensor = token_tensor[indices]
+            return self.parser.random_choice_from_notetensor((time_tensor, token_tensor))
+        else:
+            raise Exception('datamode is invalid')
