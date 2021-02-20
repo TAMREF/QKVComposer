@@ -74,6 +74,8 @@ class MidiDataset(Dataset):
         def filter_data_tensor(f):
             time_token_tensor = torch.load(f)
             time = time_token_tensor[0]
+            if(time.shape[0]==0):
+                return False
             max_time_gap = torch.max(time[1:]-time[:-1]).item()
             if max_time_gap >= self.cfg.model.num_time_token:
                 return False

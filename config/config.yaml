@@ -1,12 +1,12 @@
 model:
-  d_ff: 64
-  d_hidden: 64
-  d_embed: 64
+  d_ff: 512
+  d_hidden: 512
+  d_embed: 512
   dropout: 0.1
-  data_len: 64
-  num_time_token: 700
+  data_len: 512
+  num_time_token: 500
   n_head: 4
-  num_layers: 6
+  num_layers: 12
   num_tokens: 385
   padding_idx: 384
   sinusoid_const: 0.1
@@ -25,24 +25,24 @@ data:
   make_data_tensor: False
   max_len: 1000000
   datatensor_dir: 'dataset/time_token_tensor'
-  num_workers: 0
+  num_workers: 4
   datamode: 'time_note_vel'
 
 train:
   accumulate: 1
-  batch_size: 2
+  batch_size: 8
   betas: [0.5, 0.9]
   epochs: 10000
   fast_dev_run: False
   gpus: 1
-  lr: 0.001
+  lr: 0.00002
   optim: 'adam'
   resume: #'outputs\2021-02-11\00-26-37\checkpoints\ckpt-epoch=1736-val_loss=4.3259.ckpt'
   save_top_k: 3
   steps: 100
   time_loss_mode: 'one_hot'
   time_loss_mul: 1.0
-  valid_split: 64
+  valid_split: 512
 
 inference:
   length: 3000
