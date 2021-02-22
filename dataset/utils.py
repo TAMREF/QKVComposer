@@ -77,7 +77,7 @@ class MidiParser:
 
     def recon_midi(self, token_list, time_list, name):
         velocity = 80
-        start_times = [0] * 128
+        start_times = [-1] * 128
 
         midi = pm.PrettyMIDI(midi_file=None)
         inst = pm.Instrument(0, name='piano')
@@ -89,6 +89,8 @@ class MidiParser:
                 start_times[token-128] = time / 100
             elif 256 <= token < 384:
                 pitch = token - 256
+                if start_times[pitch]==-1:
+                    continue
                 inst.notes.append(pm.Note(velocity, pitch, start_times[pitch], time / 100))
             else:
                 break

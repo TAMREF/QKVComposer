@@ -23,10 +23,18 @@ def generate(cfg, model, prior_token: torch.Tensor, prior_time:torch.Tensor, len
         token = token.softmax(-1)
         
         #should change if batchsize != 0
-        if timegap.softmax(-1)[:, -1, 0] > cfg.inference.zero_threshold:
-            timegap = torch.tensor([[0]]).to(token.device)
-        else:
-            timegap[:, -1, 0] = -1e9
+        if cfg.train.time_loss_mode=='one_hot':
+            timegap = timegap.softmax(-1)
+            if cfg.inference.sample_mode == 'OneHotCategorical':
+                pdf_time = dist.OneHotCategorical(probs=timegap[:, -1])
+                timegap = pdf_time.sample().argmax(-1).unsqueeze(-1)
+            elif cfg.inference.sample_mode == 'Argmax':
+                timegap = timegap[:, -1].argmax(-1).unsqueeze(-1)
+        elif cfg.train.time_loss_mode=='time_zero':
+            if timegap.softmax(-1)[:, -1, 0].cpu().item() > cfg.inference.zero_threshold:
+                timegap = torch.tensor([[0]]).to(token.device)
+            else:
+                timegap[:, -1, 0] = -1e9
             timegap = timegap.softmax(-1)
             if cfg.inference.sample_mode == 'OneHotCategorical':
                 pdf_time = dist.OneHotCategorical(probs=timegap[:, -1])
@@ -63,8 +71,13 @@ def main(cfg: DictConfig):
         prior_time = torch.tensor([[5]]).to(device)
     else:
         condition_pt = torch.load(os.path.join(hydra.utils.get_original_cwd(), cfg.inference.condition_pt))
-        prior_time = condition_pt[0][:cfg.inference.condition_length].unsqueeze(0).to(device)
-        prior_token = condition_pt[1][:cfg.inference.condition_length].unsqueeze(0).to(device)
+        if cfg.data.datamode == 'time_note_vel':
+            indices = condition_pt[1] >= 128
+            time_tensor = condition_pt[0][indices]
+            token_tensor = condition_pt[1][indices]
+        
+        prior_time = time_tensor[:cfg.inference.condition_length].unsqueeze(0).to(device)
+        prior_token = token_tensor[:cfg.inference.condition_length].unsqueeze(0).to(device)
     
     result_token_array, result_time_array = generate(cfg, model, prior_token, prior_time, length=cfg.inference.length)
     parser.recon_midi(result_token_array.to('cpu').tolist(), result_time_array.to('cpu').tolist(), name = 'temporal_encoding.mid')

@@ -35,20 +35,20 @@ train:
   epochs: 10000
   fast_dev_run: False
   gpus: 1
-  lr: 0.00002
+  lr: 0.0001
   optim: 'adam'
-  resume: #'outputs\2021-02-11\00-26-37\checkpoints\ckpt-epoch=1736-val_loss=4.3259.ckpt'
+  resume: 'outputs\2021-02-20\23-23-13\checkpoints\ckpt-epoch=0110-val_loss=5.7809.ckpt'
   save_top_k: 3
   steps: 100
   time_loss_mode: 'one_hot'
-  time_loss_mul: 1.0
+  time_loss_mul: 10.
   valid_split: 512
 
 inference:
-  length: 3000
-  condition_pt: 'dataset/note_tensor/MIDI-Unprocessed_01_R1_2009_01-04_ORIG_MID--AUDIO_01_R1_2009_01_R1_2009_01_WAV.pt'
+  length: 1000
+  condition_pt: 'dataset\time_token_tensor\MIDI-UNPROCESSED_01-03_R1_2014_MID--AUDIO_03_R1_2014_wav--5time_token_tensor.pt'
   condition_length: 100
-  checkpoint_path: 'outputs/2021-02-17/00-47-26/checkpoints/ckpt-epoch=1736-val_loss=4.3259.ckpt'
+  checkpoint_path: 'outputs\23-02-46\checkpoints\ckpt-epoch=2725-val_loss=3.4571.ckpt'
   sample: False
   save_path: 'samples'
   sample_mode: 'OneHotCategorical'
