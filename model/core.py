@@ -76,12 +76,15 @@ class TemporalEncoding(nn.Module):
         super(TemporalEncoding, self).__init__()
         self.cfg = cfg
         self.embed = cfg.model.d_embed
-        #sinusoid_const added 
-        position = np.arange(0, cfg.data.max_len)[:, np.newaxis] * cfg.model.sinusoid_const
+        # position = np.arange(0, cfg.data.max_len)[:, np.newaxis]
         div_term = np.exp(np.arange(0, self.embed, 2) * -np.log(10000) / self.embed)
-        sinusoids = np.stack([np.sin(position * div_term), np.cos(position * div_term)], axis=-1).astype(np.float32)
-        embeddings = torch.from_numpy(sinusoids.reshape(cfg.data.max_len, -1))
-        self.register_buffer(name='embeddings', tensor=embeddings)
+        self.register_buffer(name='div_term', tensor=torch.from_numpy(div_term.astype(np.float32)))
+        # sinusoids = np.stack([np.sin(position * div_term), np.cos(position * div_term)], axis=-1).astype(np.float32)
+        # embeddings = torch.from_numpy(sinusoids.reshape(cfg.data.max_len, -1))
+        # self.register_buffer(name='embeddings', tensor=embeddings)
 
     def forward(self, embed, time):
-        return embed + self.embeddings[time]
+        time = torch.unsqueeze(time, dim=-1) * self.cfg.model.sinusoid_const
+        sinusoids = torch.stack([torch.sin(time * self.div_term), torch.sin(time * self.div_term)], axis=-1)
+        embeddings = sinusoids.reshape(-1, self.embed)
+        return embed + embeddings
