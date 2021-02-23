@@ -37,7 +37,7 @@ train:
   gpus: 1
   lr: 0.0001
   optim: 'adam'
-  resume: 'outputs\2021-02-20\23-23-13\checkpoints\ckpt-epoch=0110-val_loss=5.7809.ckpt'
+  resume: 'outputs\2021-02-22\20-27-26\checkpoints\ckpt-epoch=2849-val_loss=18.5034.ckpt'
   save_top_k: 3
   steps: 100
   time_loss_mode: 'one_hot'
