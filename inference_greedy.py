@@ -20,6 +20,11 @@ def generate(cfg, model, prior_token: torch.Tensor, prior_time:torch.Tensor, len
             decode_time_array = decode_time_array[:, s_idx:]
         
         token, timegap = model((decode_token_array, decode_time_array))
+        
+        #logit smoothization
+        token = token*cfg.inference.one_hot_smooth
+        #timegap = timegap*cfg.inference.one_hot_smooth
+
         token = token.softmax(-1)
         
         #should change if batchsize != 0

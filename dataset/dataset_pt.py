@@ -88,6 +88,8 @@ class MidiDataset(Dataset):
             else:
                 raise Exception('datamode is invalid')
         self.data_file_list = list(filter(filter_data_tensor, self.data_file_list))
+        if cfg.data.data_size != 'full':
+            self.data_file_list = self.data_file_list[:min(len(self.data_file_list), cfg.data.data_size)]
             
     def generate_note_tensor(self):
         midi_file_list = []
